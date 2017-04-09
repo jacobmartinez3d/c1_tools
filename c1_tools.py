@@ -4,7 +4,41 @@ from nukescripts import panels
 from PySide import QtGui
 import os
 
+def scanDir(inputDir):
+    #_flags_____________________________________________________________________
+    c1_folders = {
+        '___CameraRaw': False,
+        '__ProductionStitches': False,
+        '_ImageSequences': False,
+        'zFINAL': False
+    }
+    #_data packages_____________________________________________________________
+    foundDirs = []
+    missing = []
+
+    for thing in os.listdir(inputDir):
+        # check if its a folder or not...
+        if os.path.isdir(os.path.join(inputDir, thing)):
+            foundDirs.append(thing)
+    if len(foundDirs) < 1:
+        foundDirs = None
+    # Validate...
+    names = c1_folders.keys()
+    if foundDirs:
+        for folder in foundDirs:
+            # set validation flags...
+            for i in range(0, len(names)):
+                if folder == names[i]:
+                    c1_folders[names[i]] = True
+    # then append any missing folders to list
+    for folder in c1_folders:
+        if c1_folders[folder] == False:
+            missing.append(folder)
+    return {'foundDirs': foundDirs, 'missing': missing}
+
 def getShotVersions(foundDirs):
+    if not foundDirs:
+        return None
     versions = []
     for folder in foundDirs:
         if len(folder.split('_v')) > 1:
@@ -17,68 +51,30 @@ def getShotVersions(foundDirs):
 
 def setShotFolder():
     shotFolder = nuke.getFilename('Navigate to local Shot Folder...')
+    parentFolder = os.path.abspath(os.path.join(shotFolder, os.pardir))
+
+    # if parentFolder
+
     if os.path.isdir(shotFolder):
         shot = shotFolder.split('/')[-2]
     else:
         nuke.message('You must choose a folder or directory!')
         return
 
-    #_flags_____________________________________________________________________
-    # c1_folders = {
-    #     'cameraRaw': False,
-    #     'productionStitches': False,
-    #     'imageSequences': False,
-    #     'zFinal': False
-    # }
-    cameraRaw = False
-    productionStitches = False
-    imageSequences = False
-    zFinal = False
-    #_flags_____________________________________________________________________
-    foundDirs = []
-    missingDirs = []
-
-    for thing in os.listdir(shotFolder):
-        # check if its a folder or not...
-        if os.path.isdir(os.path.join(shotFolder, thing)):
-            foundDirs.append(thing)
-    if not foundDirs:
-        foundDirs = None
-
-    # Validate...
-    for folder in foundDirs:
-        # set validation flags...
-        if folder == '___CameraRaw':
-            cameraRaw = True
-        if folder == '__ProductionStitches':
-            productionStitches = True
-        if folder == '_ImageSequences':
-            imageSequences = True
-        if folder == 'zFINAL':
-            zFinal = True
-
-    # then append missing folders to list
-    if cameraRaw == False:
-        missingDirs.append('___CameraRaw')
-    if productionStitches == False:
-        missingDirs.append('__ProductionStitches')
-    if imageSequences == False:
-        missingDirs.append('_ImageSequences')
-    if zFinal == False:
-        missingDirs.append('zFINAL')
-
-    # if missing dirs exist, ask user to create
-    if missingDirs:
-        if nuke.ask('The following folders are missing: ' + '\n' + str(missingDirs)[1:-1] + ', create them now?'):
-            for missingDir in missingDirs:
+    results = scanDir(shotFolder)
+    print results
+    # if missing C1 folders exist, ask user to create
+    if results['missing']:
+        if nuke.ask('The following folders are missing: ' + '\n' + str(results['missing'])[1:-1] + ', create them now?'):
+            for missingDir in results['missing']:
                 os.mkdir(os.path.join(shotFolder, missingDir))
+            results['missing'] = None
     else:
-        missingDirs = None
+        results['missing'] = None
 
-    data = {'found': str(foundDirs)[1:-1], 'missing': missingDirs, 'versions': getShotVersions(foundDirs)}
-
+    data = {'found': str(results['foundDirs']), 'missing': results['missing'], 'versions': getShotVersions(results['foundDirs'])}
     print 'Found:' + '\n', data['found']
-    print 'Missing Subfolders:' + '\n', data['missing']
+    print 'Missing C1 Subfolders:' + '\n', data['missing']
     print 'Versions:' + '\n', data['versions']
 
     return data
