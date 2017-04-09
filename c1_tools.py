@@ -14,6 +14,7 @@ def scanDir(inputDir):
     }
     #_data packages_____________________________________________________________
     foundDirs = []
+    foundC1Dirs = []
     missing = []
 
     for thing in os.listdir(inputDir):
@@ -30,11 +31,13 @@ def scanDir(inputDir):
             for i in range(0, len(names)):
                 if folder == names[i]:
                     c1_folders[names[i]] = True
+                    foundC1Dirs.append(folder)
+
     # then append any missing folders to list
     for folder in c1_folders:
         if c1_folders[folder] == False:
             missing.append(folder)
-    return {'foundDirs': foundDirs, 'missing': missing}
+    return {'foundDirs': foundDirs, 'foundC1Dirs': foundC1Dirs, 'missing': missing}
 
 def getShotVersions(foundDirs):
     if not foundDirs:
@@ -53,16 +56,19 @@ def setShotFolder():
     shotFolder = nuke.getFilename('Navigate to local Shot Folder...')
     parentFolder = os.path.abspath(os.path.join(shotFolder, os.pardir))
 
-    # if parentFolder
-
+    # run a quick validation on the parent folder to see if user mis-clicked
+    parentResults = scanDir(parentFolder)['foundC1Dirs']
+    if parentResults:
+        if nuke.ask('This folder appears to be nested inside a shot folder, did you mean to choose, ' + parentFolder + '?'):
+            shotFolder = parentFolder
+            print 'changing shot folder to: ' + parentFolder + '...'
     if os.path.isdir(shotFolder):
-        shot = shotFolder.split('/')[-2]
+        shot = shotFolder.split(os.sep)[-1]
     else:
         nuke.message('You must choose a folder or directory!')
         return
 
     results = scanDir(shotFolder)
-    print results
     # if missing C1 folders exist, ask user to create
     if results['missing']:
         if nuke.ask('The following folders are missing: ' + '\n' + str(results['missing'])[1:-1] + ', create them now?'):
