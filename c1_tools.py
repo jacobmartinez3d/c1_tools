@@ -86,5 +86,5 @@ def setShotFolder():
     return data
 
 def openShotBrowser():
-    p = nuke.Panel('C1 Shot Browser')
-    p.show()
+    label = QtGui.QLabel("Hello World")
+    label.show()
