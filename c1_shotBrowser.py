@@ -12,6 +12,7 @@ class shotBrowser(QtGui.QWidget):
         self.setLayout(QtGui.QVBoxLayout())
         #_Choose show___________________________________________________________
         self.showChoices = QtGui.QComboBox(self)
+        # i want to automate this list eventually.. for now it's hard-coded...
         self.showChoices.addItem('TGR - Tigers of America')
         self.showChoices.addItem('OMF - Operation Mayflower')
         self.showChoices.addItem('ODS - Operation Deathstar')
@@ -34,6 +35,9 @@ class shotBrowser(QtGui.QWidget):
 
         self.shotTable.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
+        self.retrieveShowData('TGR - Tigers of America')
+
+
     def findGladiator(self):
         for c in ascii_lowercase:
             gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
@@ -45,17 +49,31 @@ class shotBrowser(QtGui.QWidget):
     def retrieveShowData(self, choice):
         showCode = choice.split(' - ')[0]
         # scan the VFX folder and assemble as list
-        arr = []
+        data = []
         for folder in os.listdir(self.gladiator):
             # iterate through all folders in '//gladiator.../_Post/__Projects/'
             folderName = os.path.basename(folder)
+            # split folder name into parts here so I can count them for validation
             folderNameParts = folderName.split('_')
-            if len(folderNameParts) == 3 and not folderNameParts[0] == '.':
-                # only append the right folders
-                arr.append(folderNameParts)
-        def populate(folderNameParts):
+            # nuke.message(str(folder))
+            if folderNameParts[-1] == showCode and not folderNameParts[0] == '.':
+                path1 = os.path.join(self.gladiator, folder)
+                path2 = os.sep + '6.VFX' + os.sep
+                fullPath = path1 + path2
+                for shotFolder in os.listdir(fullPath):
+                    nameParts = os.path.basename(shotFolder).split('_', 1)
+                    if nameParts[0] == showCode:
+                        data.append(nameParts)
+                # nuke.message(str(data))
+                # os.path.join(self.gladiator, folder)
+                # data.append(os.path.join(self.gladiator, folder))
+
+        def populate(data):
             self.shotTable.setRowCount(0)
-            for i in range(0, len(folderNameParts)-1):
+            for i in range(0, len(data)-1):
                 self.shotTable.insertRow(i)
-                self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(folderNameParts[i][0]))
-        populate(arr)
+                # write showCode...
+                self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(data[i][0]))
+                # write shotCode...
+                self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(data[i][1]))
+        populate(data)
