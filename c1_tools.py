@@ -84,7 +84,3 @@ def setShotFolder():
     print 'Versions:' + '\n', data['versions']
 
     return data
-
-def openShotBrowser():
-    label = QtGui.QLabel("Hello World")
-    label.show()
