@@ -9,3 +9,7 @@ def open_shotBrowser():
 # _callbacks____________________________________________________________________
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Shot Browser', 'open_shotBrowser()' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Set Local Shot Folder', 'c1_tools.setShotFolder()' )
+
+
+
+#_write node override_________________________________________________________________

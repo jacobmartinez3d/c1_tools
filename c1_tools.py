@@ -3,6 +3,7 @@ import nukescripts
 from nukescripts import panels
 from PySide import QtGui
 import os
+import re
 
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
@@ -84,3 +85,46 @@ def setShotFolder():
     print 'Versions:' + '\n', data['versions']
 
     return data
+
+def Luis_Solver():
+    node = nuke.thisNode()
+
+    file = node.knob('file').getValue()
+    filepath = os.path.split(file)[0]
+    filename = os.path.split(file)[1]
+    arr = []
+    missing = []
+    i = 0
+
+    for img in os.listdir(filepath):
+        n = int(re.search(r'\d+', img).group(0))
+        arr.append(n)
+        if len(arr) > 1:
+            difference = arr[i] - arr[i-1]
+
+            if difference > 1:
+                #print(range(arr[i-1]+1, arr[i]))
+                missing.append(range(arr[i-1]+1, arr[i]))
+        i+=1
+    if len(missing) > 0:
+        string = ''
+        # hyphenate list...
+        i = 1
+        for span in missing:
+            if len(span) > 2:
+                string = string + str(span[0]) + '-' + str(span[-1])
+            else:
+                string = string + str(span[0])
+            if i < len(missing):
+                string = string + ', '
+            i+=1
+        if nuke.ask('Found missing frames: ' + string + '\n' + 'Render these frames now?'):
+            ranges = nuke.FrameRanges()
+            for s in string.split(', '):
+                fr = nuke.FrameRange(s)
+                ranges.add(fr)
+            # nuke.render(node, ranges)
+            # node.knob('Render').execute()
+            
+            node.knob('frame_range_string').setValue(string)
+            return(nuke)
