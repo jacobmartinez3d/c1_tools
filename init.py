@@ -21,4 +21,4 @@ def createLuisWriteNode(node, knobs = "", inpanel = True):
 nuke.createNode = createLuisWriteNode
 
 
-nuke.addAfterRender(c1_tools.Luis_Solver)
+nuke.addAfterRender(c1_tools.Luis_Solver())

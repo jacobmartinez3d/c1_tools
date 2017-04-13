@@ -123,8 +123,5 @@ def Luis_Solver():
             for s in string.split(', '):
                 fr = nuke.FrameRange(s)
                 ranges.add(fr)
-            # nuke.render(node, ranges)
-            # node.knob('Render').execute()
             
-            node.knob('frame_range_string').setValue(string)
             return(nuke)
