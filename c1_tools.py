@@ -5,14 +5,15 @@ from PySide import QtGui
 import os
 import re
 
+c1_folders = {
+'___CameraRaw': False,
+'__ProductionStitches': False,
+'_ImageSequences': False,
+'zFINAL': False
+}
+
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
-    c1_folders = {
-        '___CameraRaw': False,
-        '__ProductionStitches': False,
-        '_ImageSequences': False,
-        'zFINAL': False
-    }
     #_data packages_____________________________________________________________
     foundDirs = []
     foundC1Dirs = []
@@ -123,5 +124,30 @@ def Luis_Solver():
             for s in string.split(', '):
                 fr = nuke.FrameRange(s)
                 ranges.add(fr)
-            
-            return(nuke)
+            # nuke.render(node, ranges)
+            # node.knob('Render').execute()
+
+            # node.knob('frame_range_string').setValue(string)
+
+    # tempNode = nuke.createNode('Write')
+    # nuke.render(tempNode, ranges)
+            # return(nuke)
+def versionUp(file):
+    filepath = os.path.abspath(file)
+    # filename pieces
+    filename = os.path.basename(file).split('_v')
+    currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
+
+    versionFolder = os.path.abspath(os.path.join(filepath, os.pardir))
+    shotFolder = os.path.dirname(versionFolder)
+
+    newVersion = str(currentVersion + 1).zfill(3)
+    newDir = os.path.join(shotFolder, filename[0] + '_v' + newVersion)
+    os.mkdir(newDir)
+
+    # # make c1_folders
+    for folder in c1_folders:
+        os.mkdir(os.path.join(newDir, folder))
+
+    #save nuke script
+    nuke.scriptSaveAs(os.path.join(newDir, filename[0] + '_v' + newVersion + '.nk'))
