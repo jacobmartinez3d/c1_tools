@@ -1,5 +1,6 @@
-import c1_tools
-import c1_shotBrowser
+import c1_tools.c1_tools as c1_tools
+import c1_tools.c1_shotBrowser as c1_shotBrowser
+
 import nuke
 import nukescripts
 
@@ -17,8 +18,7 @@ def createLuisWriteNode(node, knobs = "", inpanel = True):
         result.addKnob(lsBool)
 
     return result
-# nuke.addAfterBackgroundRender(c1_tools.Luis_Solver(file))
 nuke.createNode = createLuisWriteNode
 
-
-nuke.addAfterRender(c1_tools.Luis_Solver())
+nuke.addAfterBackgroundRender(c1_tools.Luis_Solver)
+nuke.addAfterRender(c1_tools.Luis_Solver)
