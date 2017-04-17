@@ -9,6 +9,6 @@ def open_shotBrowser():
 
 # _callbacks____________________________________________________________________
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Shot Browser', 'open_shotBrowser()' )
-nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Create Shot Sub-Folder Structure', 'c1_tools.createShotFolder()' )
+nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Create Shot Sub-Folder Structure', 'c1_tools.createLocalShotFolder()' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Version Up', 'c1_tools.versionUp(nuke.root().name())' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Submit Shot', 'c1_tools.submitShot(nuke.root().name())' )

@@ -4,10 +4,11 @@ import c1_tools.c1_shotBrowser as c1_shotBrowser
 import nuke
 import nukescripts
 
-#_after render override_______________________________________________________________
-# file = nuke.filename(nuke.thisNode())
+#_What this file is for:________________________________________________________
+#   Altering the initial state of Nuke when it launches, making custom changes
+#_______________________________________________________________________________
 
-#_luis solver tab_______________________________________________________________
+#_luisSolver tab_______________________________________________________________
 nukeOriginalCreateNode = nuke.createNode
 def createLuisWriteNode(node, knobs = "", inpanel = True):
     result = nukeOriginalCreateNode(node, knobs, inpanel)
@@ -16,9 +17,9 @@ def createLuisWriteNode(node, knobs = "", inpanel = True):
         result.addKnob(tab)
         lsBool = nuke.Boolean_Knob('lsBool','Run Luis_Solver after render')
         result.addKnob(lsBool)
-
     return result
 nuke.createNode = createLuisWriteNode
 
+#_Callbacks_____________________________________________________________________
 nuke.addAfterBackgroundRender(c1_tools.Luis_Solver)
 nuke.addAfterRender(c1_tools.Luis_Solver)
