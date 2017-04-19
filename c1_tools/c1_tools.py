@@ -153,7 +153,7 @@ def versionUp(file):
 
     newVersion = str(currentVersion + 1).zfill(3)
     newDir = os.path.join(shotFolder, filename[0] + '_v' + newVersion)
-    newFileName = filename[0] + '_v' + newVersion + '_%V' + '.04d.png'
+    newFileName = filename[0] + '_v' + newVersion + '_%V' + '.%04d.png'
     if os.path.exists(newDir):
         nuke.message("Looks like there's already a folder for version " + newVersion + ', aborting!')
         return
