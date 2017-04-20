@@ -19,7 +19,6 @@ def findGladiator():
     for c in ascii_lowercase:
         gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
         if os.path.exists(gladiator):
-            # nuke.message('found gladiator drive on drive: ' + c)
             return gladiator
 
 def scanDir(inputDir):
@@ -181,7 +180,6 @@ def submitShot(file):
     showCode = filename[0].split('_')[0]
 
     gladiator = findGladiator()
-
     def setServerShotFolder(gladiator):
         # scan gladiator and return the remote shot folder path that matches current local shot folder name
         serverShowFolder = None
@@ -192,19 +190,19 @@ def submitShot(file):
                 # check if ends with showCode
                 if folder.split('_')[-1] == showCode:
                     serverShowFolder = os.path.join(gladiator, folder)
-        serverShotFolder = os.path.join(os.path.join(serverShowFolder, '6.VFX'), shotName)
+        serverShotFolder = os.path.join(os.path.join(serverShowFolder, '6.VFX'), shotName) + os.sep
         return serverShotFolder
     serverShotFolder = setServerShotFolder(gladiator)
-
+    nuke.message(serverShotFolder)
     # get latest version on server
     latestVersion = 0
     for folder in os.listdir(serverShotFolder):
         pieces = folder.split('_v')
-        # nuke.message(str(pieces))
-        # one last small validation..
-        if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
-            versionNum = int(pieces[1])
-            latestVersion = versionNum if versionNum > latestVersion else latestVersion
+        if os.path.isdir(os.path.join(serverShotFolder, folder)):
+            # one last small validation..
+            if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
+                versionNum = int(pieces[1])
+                latestVersion = versionNum if versionNum > latestVersion else latestVersion
 
     def createNewRemoteVersion(serverShotFolder, latestVersion):
         newVersionFolderName = shotName + '_v' + str(latestVersion + 1).zfill(3)
