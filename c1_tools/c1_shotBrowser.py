@@ -19,8 +19,8 @@ class shotBrowser(QtGui.QWidget):
         self.layout().addWidget(self.showChoices)
         #_Shot Table____________________________________________________________
         self.shotTable          = QtGui.QTableWidget()
-        self.shotTable.header   = ['Show', 'Shot', 'Version', 'Notes' ]
-        self.shotTable.size     = [ 75, 375, 85, 600 ]
+        self.shotTable.header   = ['Show', 'Shot', 'Artist', 'Version', 'Notes' ]
+        self.shotTable.size     = [ 75, 375, 375, 85, 600 ]
         self.shotTable.setColumnCount(len(self.shotTable.header))
         self.shotTable.setHorizontalHeaderLabels(self.shotTable.header)
         self.shotTable.setSelectionMode(QtGui.QTableView.ExtendedSelection)

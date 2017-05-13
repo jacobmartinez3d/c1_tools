@@ -16,10 +16,12 @@ c1_folders = {
 }
 
 def findGladiator():
+    debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     for c in ascii_lowercase:
         gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
         if os.path.exists(gladiator):
-            return gladiator
+            return debugDir
+            #return gladiator
 
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
@@ -169,6 +171,10 @@ def versionUp(file):
     nuke.message('Current version: ' + newVersion)
 
 def submitShot(file):
+    #_NOTES_____________________________________________________________________
+    # -error when file not named
+    # -currently creates folder on gladiator before user has chance to accept or not
+    #___________________________________________________________________________
     filepath = os.path.abspath(file)
     # filename pieces
     filename = os.path.basename(file).split('_v')
@@ -193,7 +199,6 @@ def submitShot(file):
         serverShotFolder = os.path.join(os.path.join(serverShowFolder, '6.VFX'), shotName) + os.sep
         return serverShotFolder
     serverShotFolder = setServerShotFolder(gladiator)
-    nuke.message(serverShotFolder)
     # get latest version on server
     latestVersion = 0
     for folder in os.listdir(serverShotFolder):
@@ -242,8 +247,24 @@ def submitShot(file):
                 shutil.copyfile(copyFrom, copyTo)
             nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + newVersionFolderName))
 
-        if nuke.ask('Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' + 'Continue submission as: ' + newVersionFolderName + '?'):
-            threading.Thread( target = copyPrerenders ).start()
+        def p_submitShot():
+            p = nukescripts.PythonPanel('Submit Shot...')
+            p.addKnob(nuke.Text_Knob('','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n'))
+            autoVersionButton = nuke.PyScript_Knob("autoVersion", newVersionFolderName)
+            p.addKnob(autoVersionButton)
+
+            def bleh():
+                nuke.message('bleergh!')
+            autoVersionButton.setCommand(bleh())
+
+            #p.addKnob(nuke.PythonKnob(filename[0]))
+
+            p.showModalDialog()
+        # if nuke.ask('Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' + 'Continue submission as: ' + newVersionFolderName + '?'):
+            # threading.Thread( target = copyPrerenders ).start()
+
+        p_submitShot()
+
 
         # shutil.copytree(localPrerenders, remotePrerenders)
     createNewRemoteVersion(serverShotFolder, latestVersion)
