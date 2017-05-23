@@ -2,54 +2,33 @@ import nuke
 import nukescripts
 
 class submitShotDialogue( nukescripts.PythonPanel ):
-    def __init__( self ):
-        nukescripts.PythonPanel.__init__( self, 'Submit Shot', )
-        self.dialogueText = nuke.Text_Knob('','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n')
+    def __init__( self, filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator ):
+        nukescripts.PythonPanel.__init__( self, 'Submit Shot' )
+        self.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' )
         self.addKnob( self.dialogueText )
-        self.button1 = nuke.PyScript_Knob("autoVersion", newVersionFolderName)
+        self.button1 = nuke.PyScript_Knob( "autoVersion", newVersionFolderName )
         self.addKnob( self.button1 )
+
+        self.filepath = filepath
+        self.filename = filename
+        self.currentVersion = currentVersion
+        self.versionFolder = versionFolder
+        self.localShotFolder = localShotFolder
+        self.shotName = shotName
+        self.showCode = showCode
+        self.gladiator = gladiator
+        self.serverShotFolder = serverShotFolder
+        self.latestVersion = latestVersion
 
     def submitShot(file):
         #_NOTES_____________________________________________________________________
         # -error when file not named
         # -currently creates folder on gladiator before user has chance to accept or not
         #___________________________________________________________________________
-        filepath = os.path.abspath(file)
-        filename = os.path.basename(file).split('_v')
-        currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
-        versionFolder = os.path.abspath(os.path.join(filepath, os.pardir))
-        localShotFolder = os.path.dirname(versionFolder)
-        shotName = os.path.basename(localShotFolder)
-        showCode = filename[0].split('_')[0]
-
-        gladiator = findGladiator()
-        def setServerShotFolder(gladiator):
-            # scan gladiator and return the remote shot folder path that matches current local shot folder name
-            serverShowFolder = None
-
-            for folder in os.listdir(gladiator):
-                # validate that it's a directory
-                if os.path.isdir(os.path.join(gladiator, folder)):
-                    # check if ends with showCode
-                    if folder.split('_')[-1] == showCode:
-                        serverShowFolder = os.path.join(gladiator, folder)
-            serverShotFolder = os.path.join(os.path.join(serverShowFolder, '6.VFX'), shotName) + os.sep
-            return serverShotFolder
-        serverShotFolder = setServerShotFolder(gladiator)
-        # get latest version on server
-        latestVersion = 0
-        for folder in os.listdir(serverShotFolder):
-            pieces = folder.split('_v')
-            if os.path.isdir(os.path.join(serverShotFolder, folder)):
-                # one last small validation..
-                if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
-                    versionNum = int(pieces[1])
-                    latestVersion = versionNum if versionNum > latestVersion else latestVersion
 
         def createNewRemoteVersion(serverShotFolder, latestVersion):
             newVersionFolderName = shotName + '_v' + str(latestVersion + 1).zfill(3)
             newVersionFolderPath = os.path.join(serverShotFolder, newVersionFolderName)
-
 
             localPrerenders = os.path.join(versionFolder, 'Prerenders')
             remotePrerenders = os.path.join(newVersionFolderPath, 'Prerenders')
