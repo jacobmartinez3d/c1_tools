@@ -4,11 +4,6 @@ import nukescripts
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator ):
         nukescripts.PythonPanel.__init__( self, 'Submit Shot' )
-        self.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' )
-        self.addKnob( self.dialogueText )
-        self.button1 = nuke.PyScript_Knob( "autoVersion", newVersionFolderName )
-        self.addKnob( self.button1 )
-
         self.filepath = filepath
         self.filename = filename
         self.currentVersion = currentVersion
@@ -19,15 +14,31 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.gladiator = gladiator
         self.serverShotFolder = serverShotFolder
         self.latestVersion = latestVersion
+        #_knobs_________________________________________________________________
+        self.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' )
+        self.addKnob( self.dialogueText )
+        self.button1 = nuke.PyScript_Knob( "autoVersion", shotName + '_v' + str( self.latestVersion + 1).zfill(3) )
+        self.addKnob( self.button1 )
+        self.button2 = nuke.PyScript_Knob( "currentVersion", shotName + '_v' + str( self.currentVersion).zfill(3) )
+        self.addKnob( self.button2 )
+        # self.Knob('OK').removeKnob()
+
+    def knobChanged(self, knob):
+        for knobx in self.knobs():
+            nuke.message(knobx)
+        if knob.name() == 'autoVersion':
+            nuke.message('Auto-Version')
+        elif knob.name() == 'currentVersion':
+            nuke.message('Current Version')
 
     def submitShot(file):
-        #_NOTES_____________________________________________________________________
+        #_NOTES_________________________________________________________________
         # -error when file not named
         # -currently creates folder on gladiator before user has chance to accept or not
-        #___________________________________________________________________________
+        #_______________________________________________________________________
 
         def createNewRemoteVersion(serverShotFolder, latestVersion):
-            newVersionFolderName = shotName + '_v' + str(latestVersion + 1).zfill(3)
+            # newVersionFolderName = shotName + '_v' + str(self.latestVersion + 1).zfill(3)
             newVersionFolderPath = os.path.join(serverShotFolder, newVersionFolderName)
 
             localPrerenders = os.path.join(versionFolder, 'Prerenders')
@@ -65,5 +76,5 @@ class submitShotDialogue( nukescripts.PythonPanel ):
 
         createNewRemoteVersion(serverShotFolder, latestVersion)
 
-    def showModalDialogue ( self ):
+    def show ( self ):
         nukescripts.PythonPanel.showModalDialog( self )
