@@ -11,10 +11,10 @@ import threading
 import submitShot as submitShotClass
 
 c1_folders = {
-'___CameraRaw': False,
-'__ProductionStitches': False,
-'_ImageSequences': False,
-'zFINAL': False
+    '___CameraRaw': False,
+    '__ProductionStitches': False,
+    '_ImageSequences': False,
+    'zFINAL': False
 }
 
 #_Utility Functions_____________________________________________________________
@@ -223,20 +223,28 @@ def submitShot( file ):
                     # try to convert current Nuke script's version to int
                     currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
                     try:
-                        #_show modal window_________________________________________
-                        dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nContinue submission as:' )
-                        p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
-                        p.show( 'button1' )
+                        #_show modal window_____________________________________
+                        nuke.message(str(currentVersion) + ' ' + str(latestVersion))
+                        if currentVersion <= latestVersion:
+                            dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nYour file\'s version already exists! Continue submission as:' )
+                            p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
+                            p.show( 'button2' )
+                        else:
+                            dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nContinue submission as:' )
+                            p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
+                            p.show( 'button1' )
                     except:
                         raise
                 except( IndexError ):
-                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nCurrent filename contains no version-number! Auto-version and continue submission as:' )
+                    #_show modal window_________________________________________
+                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nCurrent filename contains no version-number! Continue submission as:' )
                     currentVersion = latestVersion
                     p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
                     p.show( 'button2' )
                     #raise
                 except( ValueError ):
-                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nSomething is wrong with your file version! Auto-version and continue submission as: ')
+                    #_show modal window_________________________________________
+                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nSomething is wrong with your file version! Continue submission as: ')
                     currentVersion = latestVersion
                     p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
                     p.show( 'button2' )
@@ -248,10 +256,8 @@ def submitShot( file ):
                 else:
                     nuke.message( 'Unable to find shot "' + shotName + '" on Gladiator. Please match the naming with one of the shots located at:\n\n' + serverShowFolder)
         except:
-            raise
+            #raise
             nuke.message( 'Unable to locate Gladiator at [drive]:\Departments\_Post\__Projects')
     except( IndexError ):
         nuke.message('Filename contains no show-code! Must have at least show-code and shot-name for submission.')
-
-
     return

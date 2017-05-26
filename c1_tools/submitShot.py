@@ -7,7 +7,6 @@ import threading
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator, dialogueText ):
         nukescripts.PythonPanel.__init__( self, 'Submit Shot')
-
         #_properties____________________________________________________________
         self.filepath = filepath
         self.filename = filename
@@ -26,6 +25,17 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.button1 = nuke.PyScript_Knob( "currentVersion", shotName + '_v' + str( self.currentVersion).zfill(3) )
         self.button2 = nuke.PyScript_Knob( "autoVersion", shotName + '_v' + str( self.latestVersion + 1).zfill(3) )
 
+    def show ( self, button ):
+        if button == 'button1':
+            self.addKnob( self.button1 )
+            self.addKnob( self.cancelButton )
+            nukescripts.PythonPanel.showModal( self )
+        elif button == 'button2':
+            self.setMinimumSize(550, 100)
+            self.addKnob( self.button2 )
+            self.addKnob( self.cancelButton )
+            nukescripts.PythonPanel.showModal( self )
+
     def knobChanged(self, knob):
         if knob.name() == 'autoVersion':
             self.submitShot('autoVersion')
@@ -33,15 +43,6 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         elif knob.name() == 'currentVersion':
             self.submitShot('currentVersion')
             self.ok()
-
-    def show ( self, button ):
-        if button == 'button1':
-            self.addKnob( self.button1 )
-        elif button == 'button2':
-            self.setMinimumSize(550, 100)
-            self.addKnob( self.button2 )
-            self.addKnob( self.cancelButton )
-            nukescripts.PythonPanel.showModal( self )
 
     def submitShot( self, userChoice ):
         #_NOTES_________________________________________________________________
@@ -74,6 +75,12 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             os.mkdir(remotePrerenders)
 
             def copyPrerenders():
+                #_NOTES_________________________________________________________
+                # 1. need to add auto-renaming if auto-versioning is used
+                # 2. add the 360_3DV.mp4 to the copy operation
+                # 3. after aborting, need to delete the files
+                #_______________________________________________________________
+
                 task = nuke.ProgressTask("Submitting...")
                 files = os.listdir(localPrerenders)
 
