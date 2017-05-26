@@ -26,7 +26,7 @@ def findGladiator():
         if os.path.exists(gladiator):
             return debugDir
             #return gladiator
-def setServerShotFolder(gladiator, showCode, shotName):
+def setServerShotFolder(gladiator, showCode, shotFileName):
     # scan gladiator and return the remote shot folder path that matches current local shot folder name
     serverShowFolder = None
     try:
@@ -36,9 +36,9 @@ def setServerShotFolder(gladiator, showCode, shotName):
                 # check if ends with showCode
                 if folder.split('_')[-1] == showCode:
                     serverShowFolder = os.path.join(gladiator, folder)
-        serverShotFolder = os.path.join(os.path.join(serverShowFolder, '6.VFX'), shotName) + os.sep
+        serverShotFolder = os.path.join(os.path.join(serverShowFolder, '6.VFX'), shotFileName) + os.sep
         # found matching show folder, and returning supposed shot folder
-        return serverShotFolder
+        return {'show': serverShowFolder, 'shot': serverShotFolder}
     except:
         # no matching show folder found
         return None
@@ -206,43 +206,52 @@ def submitShot( file ):
     showCode = filename[0].split('_')[0]
     versionFolder = os.path.abspath(os.path.join(filepath, os.pardir))
     localShotFolder = os.path.dirname(versionFolder)
-    shotName = showCode + '_' + os.path.splitext(filename[0].split('_')[1])[0]
     try:
-        # find Gladiator, define serverShotFolder, retrieve latestVersion
-        gladiator = findGladiator()
+        # first validate the filename filename = [showCode_shotName, 001]
+        shotName = filename[0].split('_')[1]
+        shotFileName = showCode + '_' + os.path.splitext(shotName)[0]
         try:
-            serverShotFolder = setServerShotFolder(gladiator, showCode, shotName)
-            latestVersion = getLatestVersion(serverShotFolder, showCode)
+            # find Gladiator
+            gladiator = findGladiator()
             try:
-                # try to convert current Nuke script's version to int
-                currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
+                # retrieve server folder info
+                retrieveServerShotInfo = setServerShotFolder(gladiator, showCode, shotFileName)
+                serverShowFolder = retrieveServerShotInfo['show']
+                serverShotFolder = retrieveServerShotInfo['shot']
+                latestVersion = getLatestVersion(serverShotFolder, showCode)
                 try:
-                    #_show modal window_________________________________________
-                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\nContinue submission as:' )
-                    p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator, dialogueText )
-                    p.show( 'button1' )
-                except:
-                    raise
-            except( IndexError ):
-                dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\nCurrent filename contains no version-number! Auto-version and continue submission as:' )
-                currentVersion = latestVersion
-                p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator, dialogueText )
-                p.show( 'button2' )
+                    # try to convert current Nuke script's version to int
+                    currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
+                    try:
+                        #_show modal window_________________________________________
+                        dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nContinue submission as:' )
+                        p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
+                        p.show( 'button1' )
+                    except:
+                        raise
+                except( IndexError ):
+                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nCurrent filename contains no version-number! Auto-version and continue submission as:' )
+                    currentVersion = latestVersion
+                    p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
+                    p.show( 'button2' )
+                    #raise
+                except( ValueError ):
+                    dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nSomething is wrong with your file version! Auto-version and continue submission as: ')
+                    currentVersion = latestVersion
+                    p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
+                    p.show( 'button2' )
+                    #raise
+            except:
                 #raise
-            except( ValueError ):
-                dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\nSomething is wrong with your file version! Auto-version and continue submission as: ')
-                currentVersion = latestVersion
-                p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator, dialogueText )
-                p.show( 'button2' )
-                #raise
+                if not serverShotFolder:
+                    nuke.message( 'Unable to locate remote show folder which corresponds to current filename, possibly due to incorrect naming.\n\nCorrect naming:\nshowcode_shotname_vXXX\n\nRemote show folders are located at: ' + gladiator)
+                else:
+                    nuke.message( 'Unable to find shot "' + shotName + '" on Gladiator. Please match the naming with one of the shots located at:\n\n' + serverShowFolder)
         except:
             raise
-            if not serverShotFolder:
-                nuke.message( 'Unable to locate remote show folder which corresponds to current filename, possibly due to incorrect naming.\n\nCorrect naming:\nshowcode_shotname_vXXX\n\nRemote show folders are located at: ' + gladiator)
-            else:
-                nuke.message( 'Unable to find matching location on Gladiator for current shot. Please check that your local shot folders are named correctly and that a corresponding shot folder exists at:\n\n' + serverShotFolder)
-    except:
-        raise
-        nuke.message( 'Unable to locate Gladiator at [drive]:\Departments\_Post\__Projects')
+            nuke.message( 'Unable to locate Gladiator at [drive]:\Departments\_Post\__Projects')
+    except( IndexError ):
+        nuke.message('Filename contains no show-code! Must have at least show-code and shot-name for submission.')
+
 
     return

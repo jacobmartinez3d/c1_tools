@@ -29,19 +29,32 @@ class submitShotDialogue( nukescripts.PythonPanel ):
     def knobChanged(self, knob):
         if knob.name() == 'autoVersion':
             self.submitShot('autoVersion')
+            self.ok()
         elif knob.name() == 'currentVersion':
-            nuke.message('Current Version')
+            self.submitShot('currentVersion')
+            self.ok()
+
+    def show ( self, button ):
+        if button == 'button1':
+            self.addKnob( self.button1 )
+        elif button == 'button2':
+            self.setMinimumSize(550, 100)
+            self.addKnob( self.button2 )
+            self.addKnob( self.cancelButton )
+            nukescripts.PythonPanel.showModal( self )
 
     def submitShot( self, userChoice ):
         #_NOTES_________________________________________________________________
-        # -error when file not named
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
 
         def createNewRemoteVersion(serverShotFolder, latestVersion):
-            newVersionFolderName = self.shotName + '_v' + str(self.latestVersion + 1).zfill(3)
-            newVersionFolderPath = os.path.join(serverShotFolder, newVersionFolderName)
+            if userChoice == 'autoVersion':
+                newVersionFolderName = self.shotName + '_v' + str(self.latestVersion + 1).zfill(3)
+            elif userChoice == 'currentVersion':
+                newVersionFolderName = self.shotName + '_v' + str(self.currentVersion).zfill(3)
 
+            newVersionFolderPath = os.path.join(serverShotFolder, newVersionFolderName)
             localPrerenders = os.path.join(self.versionFolder, 'Prerenders')
             remotePrerenders = os.path.join(newVersionFolderPath, 'Prerenders')
 
@@ -76,15 +89,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                     copyTo = os.path.join(remotePrerenders, f)
 
                     shutil.copyfile(copyFrom, copyTo)
-                nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + newVersionFolderName))
+                nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + newVersionFolderName + '.\n\nGood work! ;p'))
 
+            threading.Thread( target = copyPrerenders ).start()
         createNewRemoteVersion(self.serverShotFolder, self.latestVersion)
-
-    def show ( self, button ):
-        if button == 'button1':
-            self.addKnob( self.button1 )
-        elif button == 'button2':
-            self.setMinimumSize(550, 100)
-            self.addKnob( self.button2 )
-        self.addKnob( self.cancelButton )
-        nukescripts.PythonPanel.showModal( self )
