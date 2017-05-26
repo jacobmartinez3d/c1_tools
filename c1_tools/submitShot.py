@@ -1,9 +1,14 @@
 import nuke
 import nukescripts
+import os
+import shutil
+import threading
 
 class submitShotDialogue( nukescripts.PythonPanel ):
-    def __init__( self, filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator ):
-        nukescripts.PythonPanel.__init__( self, 'Submit Shot' )
+    def __init__( self, filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator, dialogueText ):
+        nukescripts.PythonPanel.__init__( self, 'Submit Shot')
+
+        #_properties____________________________________________________________
         self.filepath = filepath
         self.filename = filename
         self.currentVersion = currentVersion
@@ -15,41 +20,40 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.serverShotFolder = serverShotFolder
         self.latestVersion = latestVersion
         #_knobs_________________________________________________________________
-        self.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' )
+        self.dialogueText = dialogueText
         self.addKnob( self.dialogueText )
-        self.button1 = nuke.PyScript_Knob( "autoVersion", shotName + '_v' + str( self.latestVersion + 1).zfill(3) )
-        self.addKnob( self.button1 )
-        self.button2 = nuke.PyScript_Knob( "currentVersion", shotName + '_v' + str( self.currentVersion).zfill(3) )
-        self.addKnob( self.button2 )
-        # self.Knob('OK').removeKnob()
+        self.cancelButton = nuke.PyScript_Knob("Cancel")
+        self.button1 = nuke.PyScript_Knob( "currentVersion", shotName + '_v' + str( self.currentVersion).zfill(3) )
+        self.button2 = nuke.PyScript_Knob( "autoVersion", shotName + '_v' + str( self.latestVersion + 1).zfill(3) )
 
     def knobChanged(self, knob):
-        for knobx in self.knobs():
-            nuke.message(knobx)
         if knob.name() == 'autoVersion':
-            nuke.message('Auto-Version')
+            self.submitShot('autoVersion')
         elif knob.name() == 'currentVersion':
             nuke.message('Current Version')
 
-    def submitShot(file):
+    def submitShot( self, userChoice ):
         #_NOTES_________________________________________________________________
         # -error when file not named
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
 
         def createNewRemoteVersion(serverShotFolder, latestVersion):
-            # newVersionFolderName = shotName + '_v' + str(self.latestVersion + 1).zfill(3)
+            newVersionFolderName = self.shotName + '_v' + str(self.latestVersion + 1).zfill(3)
             newVersionFolderPath = os.path.join(serverShotFolder, newVersionFolderName)
 
-            localPrerenders = os.path.join(versionFolder, 'Prerenders')
+            localPrerenders = os.path.join(self.versionFolder, 'Prerenders')
             remotePrerenders = os.path.join(newVersionFolderPath, 'Prerenders')
 
-            if len(os.listdir(localPrerenders)) < 2:
-                nuke.message('Your Prerenders folder has less than 2 files in it. Please check and re-submit!')
-                return
+            try:
+                if len(os.listdir(localPrerenders)) < 2:
+                    nuke.message('Your Prerenders folder has less than 2 files in it. Please check and re-submit!')
+                    return
 
-            # create folders/files on Gladiator...
-            os.mkdir(newVersionFolderPath)
+                # create folders/files on Gladiator...
+                os.mkdir(newVersionFolderPath)
+            except( WindowsError ):
+                nuke.message('No Prerenders folder found!')
             # do little dance to save to remote dir, then revert back to previous local session
             currentScript = nuke.toNode('root').name()
             nuke.scriptSaveAs(os.path.join(newVersionFolderPath, newVersionFolderName + '.nk'))
@@ -74,7 +78,13 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                     shutil.copyfile(copyFrom, copyTo)
                 nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + newVersionFolderName))
 
-        createNewRemoteVersion(serverShotFolder, latestVersion)
+        createNewRemoteVersion(self.serverShotFolder, self.latestVersion)
 
-    def show ( self ):
-        nukescripts.PythonPanel.showModalDialog( self )
+    def show ( self, button ):
+        if button == 'button1':
+            self.addKnob( self.button1 )
+        elif button == 'button2':
+            self.setMinimumSize(550, 100)
+            self.addKnob( self.button2 )
+        self.addKnob( self.cancelButton )
+        nukescripts.PythonPanel.showModal( self )
