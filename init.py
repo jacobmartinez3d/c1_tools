@@ -2,11 +2,11 @@
 # import c1_tools.c1_shotBrowser as c1_shotBrowser
 # import nuke
 # import nukescripts
-
-#_after render override_______________________________________________________________
+#
+# #_after render override_______________________________________________________________
 # file = nuke.filename(nuke.thisNode())
-
-#_luis solver tab_______________________________________________________________
+#
+# # _luis solver tab_______________________________________________________________
 # nukeOriginalCreateNode = nuke.createNode
 # def createLuisWriteNode(node, knobs = "", inpanel = True):
 #     result = nukeOriginalCreateNode(node, knobs, inpanel)
@@ -19,6 +19,6 @@
 #
 #     return result
 # nuke.createNode = createLuisWriteNode
-
-# nuke.addAfterBackgroundRender(c1_tools.Luis_Solver)
-# nuke.addAfterRender(c1_tools.Luis_Solver)
+#
+# # nuke.addAfterBackgroundRender(c1_tools.Luis_Solver)
+# # nuke.addAfterRender(c1_tools.Luis_Solver)
