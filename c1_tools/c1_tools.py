@@ -128,17 +128,19 @@ def createShotFolder():
     return data
 
 def Luis_Solver():
-    node = nuke.thisNode()
+    node = nuke.toNode('_render')
+    # if type(node) == type(nuke.root()):
+    #     return nuke.message('Must have a write node selected!')
 
     file = node.knob('file').getValue()
-    filepath = os.path.split(file)[0]
-    filename = os.path.split(file)[1]
+    filepath = os.path.dirname(nuke.root().name()) + os.sep + 'Prerenders' + os.sep
     arr = []
     missing = []
     i = 0
 
     for img in os.listdir(filepath):
-        n = int(re.search(r'\d+', img).group(0))
+        n = int(img.split('.')[1])
+        # n = int(re.search(r'\d+', img).group(0))
         arr.append(n)
         if len(arr) > 1:
             difference = arr[i] - arr[i-1]
@@ -164,14 +166,14 @@ def Luis_Solver():
             for s in string.split(', '):
                 fr = nuke.FrameRange(s)
                 ranges.add(fr)
-            # nuke.render(node, ranges)
+            nuke.render(node, ranges)
             # node.knob('Render').execute()
 
             # node.knob('frame_range_string').setValue(string)
 
     # tempNode = nuke.createNode('Write')
     # nuke.render(tempNode, ranges)
-            # return(nuke)
+    return
 def versionUp(file):
     filepath = os.path.abspath(file)
     # filename pieces
@@ -200,6 +202,11 @@ def versionUp(file):
     nuke.message('Current version: ' + newVersion)
 
 def submitShot( file ):
+
+#_NOTES_________________________________________________________________________
+# on cancel: need to delete all partially uploaded content
+#_______________________________________________________________________________
+
     # define all the os paths to be used
     filepath = os.path.abspath(file)
     filename = os.path.basename(file).split('_v')
