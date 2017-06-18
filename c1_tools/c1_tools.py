@@ -20,7 +20,7 @@ c1_folders = {
 #_Utility Functions_____________________________________________________________
 
 def findGladiator():
-    debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
+    debugDir = 'z' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     for c in ascii_lowercase:
         gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
         if os.path.exists(gladiator):
@@ -208,7 +208,7 @@ def submitShot( file ):
     localShotFolder = os.path.dirname(versionFolder)
     try:
         # first validate the filename filename = [showCode_shotName, 001]
-        shotName = filename[0].split('_')[1]
+        shotName = filename[0].split('_', 1)[1]
         shotFileName = showCode + '_' + os.path.splitext(shotName)[0]
         try:
             # find Gladiator
@@ -224,7 +224,6 @@ def submitShot( file ):
                     currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
                     try:
                         #_show modal window_____________________________________
-                        nuke.message(str(currentVersion) + ' ' + str(latestVersion))
                         if currentVersion <= latestVersion:
                             dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nYour file\'s version already exists! Continue submission as:' )
                             p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
