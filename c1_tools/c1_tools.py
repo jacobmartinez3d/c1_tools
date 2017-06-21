@@ -125,6 +125,7 @@ def createShotFolder():
     print 'Missing C1 Subfolders:' + '\n', data['missing']
     print 'Versions:' + '\n', data['versions']
 
+
     return data
 
 def Luis_Solver():
@@ -231,7 +232,6 @@ def submitShot( file ):
                     currentVersion = int(os.path.basename(file).split('_v')[1].split('.')[0])
                     try:
                         #_show modal window_____________________________________
-                        nuke.message(str(currentVersion) + ' ' + str(latestVersion))
                         if currentVersion <= latestVersion:
                             dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + shotFileName + '_v' + str(latestVersion).zfill(3) + '.\n\nYour file\'s version already exists! Continue submission as:' )
                             p = submitShotClass.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotFileName, showCode, gladiator, dialogueText )
@@ -264,7 +264,7 @@ def submitShot( file ):
                     nuke.message( 'Unable to find shot "' + shotName + '" on Gladiator. Please match the naming with one of the shots located at:\n\n' + serverShowFolder)
         except:
             #raise
-            nuke.message( 'Unable to locate Gladiator at [drive]:\Departments\_Post\__Projects')
+            nuke.message( 'Unable to locate Gladiator project directory at: ' + gladiator)
     except( IndexError ):
         nuke.message('Filename contains no show-code! Must have at least show-code and shot-name for submission.')
     return
