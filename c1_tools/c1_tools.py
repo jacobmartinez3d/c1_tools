@@ -20,11 +20,13 @@ c1_folders = {
 #_Utility Functions_____________________________________________________________
 
 def findGladiator():
+    c1Brisbane = 'z:' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
+    laptop = 'E:' + os.sep + 'C1_LOCAL'
     debugDir = 'z' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     for c in ascii_lowercase:
         gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
         if os.path.exists(gladiator):
-            return debugDir
+            return laptop
             #return gladiator
 def setServerShotFolder(gladiator, showCode, shotFileName):
     # scan gladiator and return the remote shot folder path that matches current local shot folder name

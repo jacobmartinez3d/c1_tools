@@ -90,9 +90,9 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                 arr = versionFiles
                 for item in versionFiles:
                     if os.path.isdir(item):
-                        print(arr[item])
-                    nuke.message(str(arr[item]))
-                prerenerFrames = os.listdir(localPrerenders)
+                        print(item)
+                    # nuke.executeInMainThread( nuke.message, args=( str(item) ) )
+                prerenderFrames = os.listdir(localPrerenders)
 
                 #need to un-include files not to be copied
                 progIncr = 100.0 / len(versionFiles)
@@ -117,15 +117,15 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                         'shotNotes': 'shotNotes.txt'
                         }
                     for item in acceptedFiles:
-                        nuke.message(item)
-                        # if item == 'prerenders':
-                        #     copyFrom = os.path.join(localPrerenders, f)
-                        #     copyTo = os.path.join(remotePrerenders, f)
-                        #     # shutil.copyfile(copyFrom, copyTo)
-                        # elif item == '360_3DV.mp4':
-                        #     copyFrom = os.path.join(self.versionFolder, (self.filename + '_360_3DV.mp4'))
-                        #     copyTo = os.path.join(self.versionFolder, (self.filename + '_360_3DV.mp4'))
+                        # nuke.executeInMainThread( nuke.message, args=( item ) )
+                        if item == 'prerenders':
+                            copyFrom = os.path.join(localPrerenders, f)
+                            copyTo = os.path.join(remotePrerenders, f)
                             # shutil.copyfile(copyFrom, copyTo)
+                        elif item == '360_3DV.mp4':
+                            copyFrom = os.path.join(self.versionFolder, (self.filename[0] + '_v' + str(self.currentVersion).zfill(3) + '_360_3DV.mp4'))
+                            copyTo = os.path.join(os.path.join(self.serverShotFolder, (self.filename[0] + '_v' + str(self.currentVersion).zfill(3))), (self.filename[0] + '_360_3DV.mp4'))
+                            shutil.copyfile(copyFrom, copyTo)
 
                     # shutil.copyfile(copyFrom, copyTo)
                 nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + newVersionFolderName + '.\n\nGood work! ;p'))
