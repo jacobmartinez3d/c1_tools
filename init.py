@@ -2,11 +2,12 @@
 # import c1_tools.c1_shotBrowser as c1_shotBrowser
 # import nuke
 # import nukescripts
-#
-# #_after render override_______________________________________________________________
-# file = nuke.filename(nuke.thisNode())
-#
-# # _luis solver tab_______________________________________________________________
+
+#_What this file is for:________________________________________________________
+#   Altering the initial state of Nuke when it launches, making custom changes
+#_______________________________________________________________________________
+
+#_luis solver tab_______________________________________________________________
 # nukeOriginalCreateNode = nuke.createNode
 # def createLuisWriteNode(node, knobs = "", inpanel = True):
 #     result = nukeOriginalCreateNode(node, knobs, inpanel)

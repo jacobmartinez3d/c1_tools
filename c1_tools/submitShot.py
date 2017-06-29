@@ -1,8 +1,5 @@
 import nuke
 import nukescripts
-import os
-import shutil
-import threading
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator, dialogueText ):
@@ -19,11 +16,24 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.serverShotFolder = serverShotFolder
         self.latestVersion = latestVersion
         #_knobs_________________________________________________________________
-        self.dialogueText = dialogueText
+        self.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is:\n\n' + shotName + '_v' + str(latestVersion).zfill(3) + '.\n\n' )
         self.addKnob( self.dialogueText )
-        self.cancelButton = nuke.PyScript_Knob("Cancel")
-        self.button1 = nuke.PyScript_Knob( "currentVersion", shotName + '_v' + str( self.currentVersion).zfill(3) )
-        self.button2 = nuke.PyScript_Knob( "autoVersion", shotName + '_v' + str( self.latestVersion + 1).zfill(3) )
+        self.button1 = nuke.PyScript_Knob( "autoVersion", shotName + '_v' + str( self.latestVersion + 1).zfill(3) )
+        self.addKnob( self.button1 )
+        self.button2 = nuke.PyScript_Knob( "currentVersion", shotName + '_v' + str( self.currentVersion).zfill(3) )
+        self.addKnob( self.button2 )
+        # self.Knob('OK').removeKnob()
+
+    def show ( self, button ):
+        if button == 'button1':
+            self.addKnob( self.button1 )
+            self.addKnob( self.cancelButton )
+            nukescripts.PythonPanel.showModal( self )
+        elif button == 'button2':
+            self.setMinimumSize(550, 100)
+            self.addKnob( self.button2 )
+            self.addKnob( self.cancelButton )
+            nukescripts.PythonPanel.showModal( self )
 
     def show ( self, button ):
         if button == 'button1':
@@ -37,6 +47,8 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             nukescripts.PythonPanel.showModal( self )
 
     def knobChanged(self, knob):
+        for knobx in self.knobs():
+            nuke.message(knobx)
         if knob.name() == 'autoVersion':
             self.submitShot('autoVersion')
             self.ok()
@@ -44,10 +56,11 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             self.submitShot('currentVersion')
             self.ok()
 
-    def submitShot( self, userChoice ):
+    def submitShot(file):
         #_NOTES_________________________________________________________________
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
+        print('got to line 51')
 
         def createNewRemoteVersion(serverShotFolder, latestVersion):
             if userChoice == 'autoVersion':
@@ -58,16 +71,13 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             newVersionFolderPath = os.path.join(serverShotFolder, newVersionFolderName)
             localPrerenders = os.path.join(self.versionFolder, 'Prerenders')
             remotePrerenders = os.path.join(newVersionFolderPath, 'Prerenders')
+            print('got to line 61')
+            if len(os.listdir(localPrerenders)) < 2:
+                nuke.message('Your Prerenders folder has less than 2 files in it. Please check and re-submit!')
+                return
 
-            try:
-                if len(os.listdir(localPrerenders)) < 2:
-                    nuke.message('Your Prerenders folder has less than 2 files in it. Please check and re-submit!')
-                    return
-
-                # create folders/files on Gladiator...
-                os.mkdir(newVersionFolderPath)
-            except( WindowsError ):
-                nuke.message('No Prerenders folder found!')
+            # create folders/files on Gladiator...
+            os.mkdir(newVersionFolderPath)
             # do little dance to save to remote dir, then revert back to previous local session
             currentScript = nuke.toNode('root').name()
             nuke.scriptSaveAs(os.path.join(newVersionFolderPath, newVersionFolderName + '.nk'))
@@ -82,20 +92,50 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                 #_______________________________________________________________
 
                 task = nuke.ProgressTask("Submitting...")
-                files = os.listdir(localPrerenders)
+                #need to change
+                versionFiles = os.listdir(self.versionFolder)
+                #filter out unaccepted files
+                arr = versionFiles
+                for item in versionFiles:
+                    if os.path.isdir(item):
+                        print(item)
+                    # nuke.executeInMainThread( nuke.message, args=( str(item) ) )
+                prerenderFrames = os.listdir(localPrerenders)
 
-                progIncr = 100.0 / len(files)
+                #need to un-include files not to be copied
+                progIncr = 100.0 / len(versionFiles)
 
-                for i, f in enumerate(files):
+                for i, f in enumerate(versionFiles):
                     if task.isCancelled():
                         nuke.executeInMainThread( nuke.message, args=( "Aborted!" ) )
+                        #_delete files after subission__________________________
+                        #def cancelSubmission():
+                            #use os module
+                        #nuke.executeInMainThread( cancelSubmission, args=( newVersionFolderPath ) )
+                        #_______________________________________________________
                         return;
                     task.setProgress(int(i * progIncr))
                     task.setMessage(f)
-                    copyFrom = os.path.join(localPrerenders, f)
-                    copyTo = os.path.join(remotePrerenders, f)
 
-                    shutil.copyfile(copyFrom, copyTo)
+                    acceptedFiles = {
+                        'Prerenders': 'Prerenders',
+                        '360_3DV.mp4': '_360_3DV.mp4',
+                        'mocha': '.moc',
+                        'ae': '.ae',
+                        'shotNotes': 'shotNotes.txt'
+                        }
+                    for item in acceptedFiles:
+                        # nuke.executeInMainThread( nuke.message, args=( item ) )
+                        if item == 'prerenders':
+                            copyFrom = os.path.join(localPrerenders, f)
+                            copyTo = os.path.join(remotePrerenders, f)
+                            # shutil.copyfile(copyFrom, copyTo)
+                        elif item == '360_3DV.mp4':
+                            copyFrom = os.path.join(self.versionFolder, (self.filename[0] + '_v' + str(self.currentVersion).zfill(3) + '_360_3DV.mp4'))
+                            copyTo = os.path.join(os.path.join(self.serverShotFolder, (self.filename[0] + '_v' + str(self.currentVersion).zfill(3))), (self.filename[0] + '_360_3DV.mp4'))
+                            shutil.copyfile(copyFrom, copyTo)
+
+                    # shutil.copyfile(copyFrom, copyTo)
                 nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + newVersionFolderName + '.\n\nGood work! ;p'))
 
             threading.Thread( target = copyPrerenders ).start()
