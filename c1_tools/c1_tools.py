@@ -8,7 +8,7 @@ from string import ascii_lowercase
 import shutil
 import threading
 
-import submitShot as submission
+import submitShot as submit
 
 c1_folders = {
     '___CameraRaw': False,
@@ -22,43 +22,14 @@ c1_folders = {
 def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
-    for c in ascii_lowercase:
-        gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
-        if os.path.exists(gladiator):
-            nuke.message('yo')
-    return laptopDir
+    # for c in ascii_lowercase:
+    #     gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
+    #     if os.path.exists(gladiator):
+    #         nuke.message('yo')
             #return gladiator
-def retrieveServerShowFolder( gladiator, showCode, shotName = None ):
-    serverShowFolder = None
-    for folder in os.listdir(gladiator):
-        # validate that it's a directory
-        if os.path.isdir(os.path.join(gladiator, folder)):
-            # check if ends with showCode
-            if folder.split('_')[-1] == showCode:
-                serverShowFolder = os.path.join(gladiator, folder)
-    return serverShowFolder
+    return debugDir
 
-def setServerShotFolder(gladiator, showCode, shotName):
-    # scan gladiator and return the remote shot folder path that matches current local shot folder name
-    serverShowFolder = None
-    try:
-        serverShotFolder = os.path.join(os.path.join(retrieveServerShowFolder(gladiator, showCode), '6.VFX'), shotName) + os.sep
-        # found matching show folder, and returning supposed shot folder
-        return {'show': serverShowFolder, 'shot': serverShotFolder}
-    except:
-        # no matching show folder found
-        return None
-def getLatestVersion(serverShotFolder, showCode):
-    # get latest version on server
-    latestVersion = 0
-    for folder in os.listdir(serverShotFolder):
-        pieces = folder.split('_v')
-        if os.path.isdir(os.path.join(serverShotFolder, folder)):
-            # one last small validation..
-            if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
-                versionNum = int(pieces[1])
-                latestVersion = versionNum if versionNum > latestVersion else latestVersion
-    return latestVersion
+
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
     #_data packages_____________________________________________________________
@@ -96,7 +67,7 @@ def retrieveShotFolderVersions(foundDirs):
     for folder in foundDirs:
         if len(folder.split('_v')) > 1:
             version = int(folder.split('_v')[1])
-            if not version < 1:
+            if version >= 1:
                 versions.append(folder)
     if not versions:
         versions = None
@@ -132,8 +103,6 @@ def createShotFolder():
     print 'Found:' + '\n', data['found']
     print 'Missing C1 Subfolders:' + '\n', data['missing']
     print 'Versions:' + '\n', data['versions']
-
-
     return data
 
 #_Scan for missing rener frames in write output directory_______________________
@@ -213,44 +182,86 @@ def submitShot( filepath ):
     class submission():
         def __init__( self ):
             self.gladiator = findGladiator()
+            self.dialogueText = ''
             #filename fragments
             self.filepath = os.path.abspath(filepath)
             self.filename = None
             self.showCode = None
-            self.shotName = 'Jacob'
+            self.shotName = None
             self.versionNum = None
             #local
-            self.shotFolder = None
-            self.versionFolder = None
+            self.localShotFolder = None
+            self.localVersionFolder = None
             #server
             self.serverShowFolder = None
             self.serverShotFolder = None
             self.serverVersionFolder = None
+            self.serverLatestVersion = None
+
+            def retrieveServerShowFolder( gladiator, showCode ):
+                serverShowFolder = None
+                for folder in os.listdir(gladiator):
+                    # validate that it's a directory
+                    if os.path.isdir(os.path.join(gladiator, folder)):
+                        # check if ends with showCode
+                        if folder.split('_')[-1] == showCode:
+                            serverShowFolder = os.path.join(os.path.join(gladiator, folder), '6.VFX')
+                return serverShowFolder
+
+            def retrieveServerShotFolder( serverShowFolder, showCode, shotName ):
+                serverShotFolder = None
+                for folder in os.listdir(serverShowFolder):
+                    # validate that it's a directory
+                    if os.path.isdir(os.path.join(serverShowFolder, folder)):
+                        # check if ends with showCode
+                        if folder.split(showCode + '_')[-1] == shotName:
+                            serverShotFolder = os.path.join(serverShowFolder, folder)
+                return serverShotFolder
+
+            def retrieveLatestVersion( serverShotFolder, showCode ):
+                # get latest version on server
+                latestVersion = 0
+                for folder in os.listdir(serverShotFolder):
+                    pieces = folder.split('_v')
+                    if os.path.isdir(os.path.join(serverShotFolder, folder)):
+                        # one last small validation..
+                        if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
+                            versionNum = int(pieces[1])
+                            latestVersion = versionNum if versionNum > latestVersion else latestVersion
+                return latestVersion
 
             def validate():
                 fragment1 = os.path.basename(filepath).split('_v')
                 fragment2 = fragment1[0].split('_')
                 fragmentsArr = []
 
-                #validate
+                #_VALIDATE______________________________________________________
                 exceptions = []
+                #_versionNumber_________________________________________________
                 if type(int(fragment1[1].split('.')[0])) != int:
-                    exceptions[2] = 'Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n'
-                if retrieveServerShowFolder(self.gladiator, fragment2[0]) == None:
-                    exceptions[0] = 'No corresponding Show folder found at: ' + self.gladiator
+                    exceptions.append('Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
+                #_serverShowFolder______________________________________________
+                serverShowFolder = retrieveServerShowFolder(self.gladiator, fragment2[0])
+                if not serverShowFolder:
+                    exceptions.append('No corresponding Show folder found at: ' + self.gladiator)
                 else:
                     self.showCode = fragment2[0] #showCode
-                    shotName = fragment1[0].split((self.showCode + '_'))[1]
-                    serverShotFolder = retrieveServerShowFolder(self.gladiator, self.showCode, shotName)
-                    if serverShotFolder == None:
-                        exceptions[1] = 'No corresponding Shot folder found at: ' + self.gladiator
-                    else:
-                        self.shotName = shotName
-                        self.serverShotFolder = serverShotFolder
-
+                    self.serverShowFolder = serverShowFolder
+                #_serverShotFolder______________________________________________
+                shotName = fragment1[0].split((self.showCode + '_'))[1]
+                serverShotFolder = retrieveServerShotFolder(self.serverShowFolder, self.showCode, shotName)
+                if not serverShotFolder:
+                    exceptions.append('No corresponding Shot folder found at: ' + self.gladiator)
+                else:
+                    self.shotName = shotName
+                    self.serverShotFolder = serverShotFolder
+                #_PASSED________________________________________________________
                 self.versionNum = int(fragment1[1].split('.')[0]) #versionNum
                 self.filename = fragment1[0] #filename
-
+                self.localVersionFolder = os.path.abspath(os.path.join(self.filepath, os.pardir))
+                self.serverLatestVersion = retrieveLatestVersion(self.serverShotFolder, self.showCode)
+                self.serverVersionFolder = os.path.join(self.serverShotFolder, (self.filename + '_v' + str(self.serverLatestVersion + 1).zfill(3)))
+                #_exceptions____________________________________________________
                 if len(exceptions) > 0:
                     msg = ''
                     for exception in exceptions:
@@ -260,30 +271,12 @@ def submitShot( filepath ):
             validate()
 
     data = submission()
-
-    # try:
-    #     versionFolder = os.path.abspath(os.path.join(filepath, os.pardir))
-    #     localShotFolder = os.path.dirname(versionFolder)
-    #     try:
-    #         gladiator = findGladiator()
-    #         try:
-    #             serverShotFolder = setServerShotFolder(gladiator, showCode, shotName)
-    #             latestVersion = getLatestVersion(serverShotFolder, showCode)
-    #             #_show modal window_____________________________________________
-    #             p = submission.submitShotDialogue( filepath, filename, currentVersion, latestVersion, versionFolder, localShotFolder, serverShotFolder, shotName, showCode, gladiator )
-    #             p.show()
-    #         except:
-    #             if not serverShotFolder:
-    #                 nuke.message( 'Unable to locate remote show folder which corresponds to current filename, possibly due to incorrect naming.\n\nCorrect naming:\nshowcode_shotname_vXXX\n\nRemote show folders are located at: ' + gladiator)
-    #             else:
-    #                 nuke.message( 'Unable to find matching location on Gladiator for current shot. Please check that your local shot folders are named correctly and that a corresponding shot folder exists at:\n\n' + serverShotFolder)
-    #
-    #             # nuke.message( 'Unable to retrieve shot information from Gladiator.' )
-    #     except:
-    #         nuke.message( 'Unable to locate Gladiator at [drive]:\Departments\_Post\__Projects')
-    # except( IndexError ):
-    #     nuke.message( 'Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX' )
-    # except( ValueError ):
-    #     nuke.message( 'Version must be numerical!\n\nexample:\nshowcode_shotname_v001' )
-    nuke.message(data.serverShotFolder + '\n' + str(data.serverShowFolder) + '\n' + data.serverVersionFolder)
+    if data.versionNum <= data.serverLatestVersion:
+        data.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + data.shotName + '_v' + str(data.serverLatestVersion).zfill(3) + '.\n\nYour file\'s version already exists! Continue submission as:' )
+        p = submit.submitShotDialogue( data )
+        p.show( 'button2')
+    else:
+        data.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + data.shotName + '_v' + str(data.serverLatestVersion).zfill(3) + '.\n\nContinue submission as:' )
+        p = submit.submitShotDialogue( data )
+        p.show( 'button1')
     return
