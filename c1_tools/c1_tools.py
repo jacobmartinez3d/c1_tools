@@ -27,7 +27,7 @@ def findGladiator():
     #     if os.path.exists(gladiator):
     #         nuke.message('yo')
             #return gladiator
-    return debugDir
+    return laptopDir
 
 
 def scanDir(inputDir):
@@ -179,24 +179,76 @@ def versionUp(file):
     return
 
 def submitShot( filepath ):
-    class submission():
-        def __init__( self ):
-            self.gladiator = findGladiator()
+    class Submission():
+        def __init__( self, filepath, gladiator ):
+            self.gladiator = gladiator
             self.dialogueText = ''
-            #filename fragments
+            self.validated = False
+            #_filename fragments
             self.filepath = os.path.abspath(filepath)
             self.filename = None
             self.showCode = None
             self.shotName = None
             self.versionNum = None
-            #local
-            self.localShotFolder = None
+            #_local
             self.localVersionFolder = None
-            #server
             self.serverShowFolder = None
             self.serverShotFolder = None
             self.serverVersionFolder = None
             self.serverLatestVersion = None
+            self.versionFolder = {
+                'local': None,
+                'remote': None
+            }
+
+            def validate():
+                fragment1 = os.path.basename(filepath).split('_v')
+                fragment2 = fragment1[0].split('_')
+                fragmentsArr = []
+                self.filename = fragment1[0] #filename
+
+                #_VALIDATE______________________________________________________
+                exceptions = []
+
+                #_____serverShowFolder, showCode
+                serverShowFolder = retrieveServerShowFolder(self.gladiator, fragment2[0])
+                if not serverShowFolder:
+                    exceptions.append('No corresponding Show folder found at: ' + self.gladiator)
+                else:
+                    self.showCode = fragment2[0]
+                    self.serverShowFolder = serverShowFolder
+                #_____serverShotFolder, shotName
+                shotName = fragment1[0].split((self.showCode + '_'))[1]
+                serverShotFolder = retrieveServerShotFolder(self.serverShowFolder, self.showCode, shotName)
+                if not serverShotFolder:
+                    exceptions.append('No corresponding Shot folder found at: ' + self.gladiator)
+                else:
+                    self.shotName = shotName
+                    self.serverShotFolder = serverShotFolder
+                #_____versionNum
+                try:
+                    if type(int(fragment1[1].split('.')[0])) != int:
+                        exceptions.append('Current filename contains no valid version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
+                    else:
+                        self.versionNum = int(fragment1[1].split('.')[0])
+                except:
+                    exceptions.append('Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
+                #_exceptions____________________________________________________
+                if len(exceptions) > 0:
+                    msg = ''
+                    i = 1
+                    for exception in exceptions:
+                        msg = msg + 'Exception ' + str(i) + ') ' + exception
+                        i = i+1
+                    nuke.message( msg )
+                    return False
+                else:
+                    #_PASSED________________________________________________________
+                    self.localVersionFolder = os.path.abspath(os.path.join(self.filepath, os.pardir))
+                    self.folderVersionNum = int(os.path.basename(self.localVersionFolder).split('_v')[1])
+                    self.serverLatestVersion = retrieveLatestVersion(self.serverShotFolder, self.showCode)
+                    self.serverVersionFolder = os.path.join(self.serverShotFolder, (self.filename + '_v' + str(self.serverLatestVersion + 1).zfill(3)))
+                    return True
 
             def retrieveServerShowFolder( gladiator, showCode ):
                 serverShowFolder = None
@@ -230,53 +282,25 @@ def submitShot( filepath ):
                             latestVersion = versionNum if versionNum > latestVersion else latestVersion
                 return latestVersion
 
-            def validate():
-                fragment1 = os.path.basename(filepath).split('_v')
-                fragment2 = fragment1[0].split('_')
-                fragmentsArr = []
+            if validate():
+                self.validated = True
+            #/init
 
-                #_VALIDATE______________________________________________________
-                exceptions = []
-                #_versionNumber_________________________________________________
-                if type(int(fragment1[1].split('.')[0])) != int:
-                    exceptions.append('Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
-                #_serverShowFolder______________________________________________
-                serverShowFolder = retrieveServerShowFolder(self.gladiator, fragment2[0])
-                if not serverShowFolder:
-                    exceptions.append('No corresponding Show folder found at: ' + self.gladiator)
-                else:
-                    self.showCode = fragment2[0] #showCode
-                    self.serverShowFolder = serverShowFolder
-                #_serverShotFolder______________________________________________
-                shotName = fragment1[0].split((self.showCode + '_'))[1]
-                serverShotFolder = retrieveServerShotFolder(self.serverShowFolder, self.showCode, shotName)
-                if not serverShotFolder:
-                    exceptions.append('No corresponding Shot folder found at: ' + self.gladiator)
-                else:
-                    self.shotName = shotName
-                    self.serverShotFolder = serverShotFolder
-                #_PASSED________________________________________________________
-                self.versionNum = int(fragment1[1].split('.')[0]) #versionNum
-                self.filename = fragment1[0] #filename
-                self.localVersionFolder = os.path.abspath(os.path.join(self.filepath, os.pardir))
-                self.serverLatestVersion = retrieveLatestVersion(self.serverShotFolder, self.showCode)
-                self.serverVersionFolder = os.path.join(self.serverShotFolder, (self.filename + '_v' + str(self.serverLatestVersion + 1).zfill(3)))
-                #_exceptions____________________________________________________
-                if len(exceptions) > 0:
-                    msg = ''
-                    for exception in exceptions:
-                        msg = msg + exception
-                    nuke.message( msg )
-                return
-            validate()
-
-    data = submission()
-    if data.versionNum <= data.serverLatestVersion:
+    data = Submission(filepath, findGladiator())
+    if not data.validated:
+        # if validat() doesn't pass don't go any further
+        return False
+    elif data.versionNum <= data.serverLatestVersion:
+        # file's version already exists
         data.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + data.shotName + '_v' + str(data.serverLatestVersion).zfill(3) + '.\n\nYour file\'s version already exists! Continue submission as:' )
         p = submit.submitShotDialogue( data )
-        p.show( 'button2')
-    else:
-        data.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + data.shotName + '_v' + str(data.serverLatestVersion).zfill(3) + '.\n\nContinue submission as:' )
-        p = submit.submitShotDialogue( data )
         p.show( 'button1')
+    else:
+        # save as current version
+        if data.serverLatestVersion == 0:
+            data.dialogueText = nuke.Text_Knob( '','', 'This shot has no prior submissions.\n\nContinue as first submission:' )
+        else:
+            data.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + data.shotName + '_v' + str(data.serverLatestVersion).zfill(3) + '.\n\nContinue submission as:' )
+        p = submit.submitShotDialogue( data )
+        p.show( 'button2')
     return
