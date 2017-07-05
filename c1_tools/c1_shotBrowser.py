@@ -19,13 +19,16 @@ class shotBrowser(QtGui.QWidget):
         self.showChoices.addItem('TGR - Tigers of America')
         self.showChoices.addItem('OMF - Operation Mayflower')
         self.showChoices.addItem('ODS - Operation Deathstar')
+        self.showChoices.addItem('ODT - Operation Downtown')
+        self.showChoices.addItem('ODL - Operation Daylight')
+        self.showChoices.addItem('BRZ - Brazil')
         #_______________________________________________________________________
 
         self.showChoices.activated[str].connect(self.retrieveShowData)
         self.layout().addWidget(self.showChoices)
         #_Shot Table____________________________________________________________
         self.shotTable          = QtGui.QTableWidget()
-        self.shotTable.header   = ['Show', 'Shot', 'Artist', 'Version', 'Notes' ]
+        self.shotTable.header   = ['Show', 'Shot', 'Artist', 'Version', 'Date' ]
         self.shotTable.size     = [ 75, 375, 375, 85, 600 ]
         self.shotTable.setColumnCount(len(self.shotTable.header))
         self.shotTable.setHorizontalHeaderLabels(self.shotTable.header)
@@ -64,10 +67,12 @@ class shotBrowser(QtGui.QWidget):
                 # data.append(os.path.join(self.gladiator, folder))
         def populate(data):
             self.shotTable.setRowCount(0)
-            for i in range(0, len(data)-1):
+            for i in range(0, len(data)):
                 self.shotTable.insertRow(i)
                 # write showCode...
                 self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(data[i][0]))
-                # write shotCode...
+                # write shotName...
                 self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(data[i][1]))
+
+                self.shotTable.setItem(i, 2, QtGui.QTableWidgetItem())
         populate(data)
