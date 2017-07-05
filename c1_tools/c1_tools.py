@@ -7,6 +7,7 @@ import re
 from string import ascii_lowercase
 import shutil
 import threading
+import smtplib
 
 import submitShot as submit
 

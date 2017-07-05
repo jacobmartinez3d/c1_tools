@@ -3,7 +3,10 @@ import nukescripts
 import os
 import shutil
 import threading
-
+import smtplib
+import email.utils as emailUtils
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, data ):
@@ -23,6 +26,11 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.showFolder = data.showFolder
         #_knobs_________________________________________________________________
         self.addKnob( self.dialogueText )
+        self.emailBool = nuke.Boolean_Knob('emailBool', 'Send Email')
+        self.addKnob( self.emailBool )
+        self.emailBool.setValue( False )
+        self.emailMsg = nuke.Multiline_Eval_String_Knob( 'MultiLine_String_knob', 'test')
+        self.addKnob( self.emailMsg )
         self.cancelButton = nuke.PyScript_Knob("Cancel")
         self.button1 = nuke.PyScript_Knob( "submit", self.shotName + '_v' + str( self.versionFolder.ver.remote + 1 ).zfill(3) )
         self.button2 = nuke.PyScript_Knob( "submit", self.shotName + '_v' + str( self.fileversion ).zfill(3) )
@@ -42,11 +50,30 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         if knob.name() == 'submit':
             self.submitShot()
             self.ok()
+        if knob.name() == 'emailBool':
+            self.emailMsg.setEnabled( self.emailBool.value() )
 
     def submitShot( self ):
         #_NOTES_________________________________________________________________
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
+        def email():
+            fromaddr = "jacobmartinez3d@gmail.com"
+            toaddr = "umbrellabuddha@gmail.com"
+            msg = MIMEMultipart()
+            msg['From'] = fromaddr
+            msg['To'] = toaddr
+            msg['Subject'] = self.shotName + '_v' + str(self.fileversion).zfill(3)
+
+            body = self.versionFolder.path.remote + '\n\n' + self.emailMsg.value()
+            msg.attach(MIMEText(body, 'plain'))
+
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(fromaddr, "Mugunghwa2017")
+            text = msg.as_string()
+            server.sendmail(fromaddr, toaddr, text)
+            server.quit()
 
         def createNewRemoteVersion( serverShotFolder ):
             newVersionFolderName = self.shotName + '_v' + str(self.fileversion).zfill(3)
@@ -126,6 +153,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                                 exceptions.append( msg )
 
                 nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + self.showCode + '_' + newVersionFolderName + '.\n\nGood work! ;p'))
-
             threading.Thread( target = copyPrerenders ).start()
         createNewRemoteVersion( self.shotFolder.path.remote )
+        if self.emailBool.value() == True:
+            email()
