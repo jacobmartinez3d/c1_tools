@@ -7,6 +7,7 @@ import smtplib
 import email.utils as emailUtils
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
+import c1_User
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, data ):
@@ -14,6 +15,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.gladiator = data.gladiator
         self.dialogueText = data.dialogueText
         self.validated = data.validated
+        self.user = c1_User.Login()
         #filename fragments
         self.filepath = data.filepath
         self.filename = data.filename
@@ -25,13 +27,16 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.shotFolder = data.shotFolder
         self.showFolder = data.showFolder
         #_knobs_________________________________________________________________
-        self.addKnob( self.dialogueText )
-        self.emailBool = nuke.Boolean_Knob('emailBool', 'Send Email')
+        self.emailBool = nuke.Boolean_Knob('emailBool', 'Send Email to VFX')
         self.addKnob( self.emailBool )
         self.emailBool.setValue( False )
-        self.emailMsg = nuke.Multiline_Eval_String_Knob( 'MultiLine_String_knob', 'test')
+        self.emailMsg = nuke.Multiline_Eval_String_Knob( 'Type your shot notes here(if enabled).', '')
         self.addKnob( self.emailMsg )
+        self.emailMsg.setEnabled( False )
+        self.sep = nuke.Text_Knob('','')
+        self.addKnob( self.sep )
         self.cancelButton = nuke.PyScript_Knob("Cancel")
+        self.addKnob( self.dialogueText )
         self.button1 = nuke.PyScript_Knob( "submit", self.shotName + '_v' + str( self.versionFolder.ver.remote + 1 ).zfill(3) )
         self.button2 = nuke.PyScript_Knob( "submit", self.shotName + '_v' + str( self.fileversion ).zfill(3) )
 
@@ -58,22 +63,38 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
         def email():
-            fromaddr = "jacobmartinez3d@gmail.com"
-            toaddr = "umbrellabuddha@gmail.com"
-            msg = MIMEMultipart()
-            msg['From'] = fromaddr
-            msg['To'] = toaddr
-            msg['Subject'] = self.shotName + '_v' + str(self.fileversion).zfill(3)
+            if self.user.validate( 'txt' ):
+                nuke.message('validated')
+                myid = emailUtils.make_msgid()
+                toaddr = "umbrellabuddha@gmail.com"
+                subject = str(self.shotName) + '_v' + str(self.fileversion).zfill(3)
+                body = self.versionFolder.path.remote + '\n\n' + self.emailMsg.value()
+                msg = MIMEMultipart()
+                msg['Subject'] = subject
+                msg['From'] = self.user.email
+                msg['To'] = toaddr
+                # msg.add_header( "Message-ID", myid )
 
-            body = self.versionFolder.path.remote + '\n\n' + self.emailMsg.value()
-            msg.attach(MIMEText(body, 'plain'))
+                msg.attach(MIMEText(body, 'plain'))
 
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(fromaddr, "Mugunghwa2017")
-            text = msg.as_string()
-            server.sendmail(fromaddr, toaddr, text)
-            server.quit()
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                try:
+                    server.login(self.user.email, self.user.password)
+                    text = msg.as_string()
+                    server.sendmail(self.user.email, toaddr, text)
+                    server.quit()
+                except:
+                    result = c1_User.Login()
+                    if result:
+                        try:
+                            server.login(result.email, result.password)
+                            text = msg.as_string()
+                            server.sendmail(self.user['email'], toaddr, text)
+                            server.quit()
+                        except:
+                            nuke.message( 'Could not log in, no email was sent with this submission!')
+            return
 
         def createNewRemoteVersion( serverShotFolder ):
             newVersionFolderName = self.shotName + '_v' + str(self.fileversion).zfill(3)

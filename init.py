@@ -1,25 +1,29 @@
-# import c1_tools.c1_tools as c1_tools
-# import c1_tools.c1_shotBrowser as c1_shotBrowser
-# import nuke
+import c1_tools.c1_tools as c1_tools
+import c1_tools.c1_ShotBrowser as c1_shotBrowser
+import c1_tools.c1_User as c1_User
+import nuke
+import smtplib
 # import nukescripts
 
 #_What this file is for:________________________________________________________
 #   Altering the initial state of Nuke when it launches, making custom changes
 #_______________________________________________________________________________
 
-#_luis solver tab_______________________________________________________________
-# nukeOriginalCreateNode = nuke.createNode
-# def createLuisWriteNode(node, knobs = "", inpanel = True):
-#     result = nukeOriginalCreateNode(node, knobs, inpanel)
-#     if node == "Write":
-#         tab = nuke.Tab_Knob('Luis_Solver')
-#         result.addKnob(tab)
-#         lsBool = nuke.Boolean_Knob('lsBool','Run Luis_Solver after render')
-#         result.addKnob(lsBool)
-#
-#
-#     return result
-# nuke.createNode = createLuisWriteNode
-#
-# # nuke.addAfterBackgroundRender(c1_tools.Luis_Solver)
-# # nuke.addAfterRender(c1_tools.Luis_Solver)
+#_chech for login.txt
+# def validate():
+#     thisDir = os.path.join(os.path.realpath(__file__), os.pardir)
+#     try:
+#         text = open(os.path.join(thisDir, 'c1_tools/login.txt'), 'r+')
+#         text.close()
+#         return True
+#     except:
+#         result = c1_User.Login().validate()
+#         if result:
+#             text = open(os.path.join(thisDir, 'c1_tools/login.txt'), 'w')
+#             for line in result:
+#                 text.write( line + '\n')
+#             text.close()
+#         return False
+
+user = c1_User.Login()
+# if user.validate()
