@@ -1,6 +1,5 @@
 import c1_tools.c1_tools as c1_tools
 import c1_tools.c1_ShotBrowser as c1_shotBrowser
-import c1_tools.c1_User as c1_User
 import nuke
 import nukescripts
 

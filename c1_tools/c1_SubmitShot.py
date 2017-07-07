@@ -5,9 +5,11 @@ import shutil
 import threading
 import smtplib
 import email.utils as emailUtils
+import sys
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
-import c1_User
+sys.path.append('../init.py')
+from init import user as c1_user
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, data ):
@@ -15,7 +17,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         self.gladiator = data.gladiator
         self.dialogueText = data.dialogueText
         self.validated = data.validated
-        self.user = c1_User.Login()
+        self.user = c1_user
         #filename fragments
         self.filepath = data.filepath
         self.filename = data.filename
@@ -63,8 +65,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
         def email():
-            if self.user.validate( 'txt' ):
-                nuke.message('validated')
+            if self.user.status == 'online':
                 myid = emailUtils.make_msgid()
                 toaddr = "umbrellabuddha@gmail.com"
                 subject = str(self.shotName) + '_v' + str(self.fileversion).zfill(3)
@@ -73,27 +74,17 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                 msg['Subject'] = subject
                 msg['From'] = self.user.email
                 msg['To'] = toaddr
-                # msg.add_header( "Message-ID", myid )
-
+                msg.add_header( "Message-ID", myid )
                 msg.attach(MIMEText(body, 'plain'))
-
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
                 try:
-                    server.login(self.user.email, self.user.password)
+                    self.user.server.login(self.user.email, self.user.password)
                     text = msg.as_string()
-                    server.sendmail(self.user.email, toaddr, text)
-                    server.quit()
+                    self.user.server.sendmail(self.user.email, toaddr, text)
+                    # c1_user.server.quit()
                 except:
-                    result = c1_User.Login()
-                    if result:
-                        try:
-                            server.login(result.email, result.password)
-                            text = msg.as_string()
-                            server.sendmail(self.user['email'], toaddr, text)
-                            server.quit()
-                        except:
-                            nuke.message( 'Could not log in, no email was sent with this submission!')
+                    nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
+            else:
+                nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
             return
 
         def createNewRemoteVersion( serverShotFolder ):

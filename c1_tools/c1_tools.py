@@ -15,7 +15,7 @@ c1_folders = {
     '__ProductionStitches': False,
     '_ImageSequences': False,
     'zFINAL': False
-}
+    }
 
 #_Utility Functions_____________________________________________________________
 
@@ -27,7 +27,7 @@ def findGladiator():
     #     if os.path.exists(gladiator):
     #         nuke.message('yo')
             #return gladiator
-    return laptopDir
+    return debugDir
 
 
 def scanDir(inputDir):
@@ -339,7 +339,4 @@ def submitShot( filepath ):
             data.dialogueText = nuke.Text_Knob( '','', 'Latest version of this shot on Gladiator is: ' + data.shotName + '_v' + str(data.versionFolder.ver.remote).zfill(3) + '.\n\nContinue submission as:' )
         p = submit.submitShotDialogue( data )
         p.show( 'button2' )
-    return
-
-def userLogin():
     return

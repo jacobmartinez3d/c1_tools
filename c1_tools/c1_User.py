@@ -8,7 +8,16 @@ import smtplib
 class Login( nukescripts.PythonPanel ):
     def __init__( self ):
         nukescripts.PythonPanel.__init__( self, 'C1 Login')
-        self.validated = False
+        self.server = smtplib.SMTP('smtp.gmail.com', 587)
+        self.status = 'offline'
+        self.server.starttls()
+        self.email = None
+        self.password = None
+        self.scriptDir = {
+        'root':     os.path.join(os.path.join(os.path.realpath(__file__), os.pardir), os.pardir),
+        'c1_tools': os.path.join(os.path.realpath(__file__), os.pardir)
+        }
+        #_define knobs
         self.inp_email = nuke.String_Knob( 'email', 'C1 Email: ')
         self.inp_password = nuke.Password_Knob( 'password', 'Password: ')
         self.loginButton = nuke.PyScript_Knob("Login")
@@ -18,67 +27,61 @@ class Login( nukescripts.PythonPanel ):
         self.addKnob( self.inp_password )
         self.addKnob( self.loginButton )
         self.addKnob( self.cancelButton )
-
-        thisDir = os.path.join(os.path.realpath(__file__), os.pardir)
-        if os.path.exists(os.path.join(thisDir, 'login.txt')):
-            text = open(os.path.join(thisDir, 'login.txt'), 'r+')
+        #_retrieve previous login from login.txt
+        self.retrieveLogin()
+        return
+    #_Retrieve login.txt data
+    def retrieveLogin( self ):
+        if os.path.exists(os.path.join(self.scriptDir['c1_tools'], 'login.txt')):
+            text = open(os.path.join(self.scriptDir['c1_tools'], 'login.txt'), 'r+')
             lines = []
             for line in text:
                 lines.append( line )
             text.close()
-            validate(lines[0], lines[1])
-            # self.email = lines[0]
-            # self.password = lines[1]
-        else:
-            nukescripts.PythonPanel.showModal( self )
+            self.email = lines[0]
+            self.password = lines[1]
         return
-
-            # text = open(os.path.join(thisDir, 'login.txt'), 'w')
-            # text.write( self.inp_email.value() + '\n')
-            # text.write( self.inp_password.value() + '\n')
-            # text.close()
-        # if not self.validate():
-        #     except:
-        #         os.remove(os.path.join(thisDir, 'c1_tools/login.txt'))
-        #         user = self.validate()
-        #         server.login(user[0], user[1])
-
+    #_create login.txt data
+    def createLogin( self ):
+        try:
+            text = open(os.path.join(self.scriptDir['c1_tools'], 'login.txt'), 'w')
+            text.write( self.inp_email.value() + '\n')
+            text.write( self.inp_password.value() + '\n')
+            text.close()
+        except:
+            print( 'Failed to save login info! ')
+        return
     def prompt( self ):
         nukescripts.PythonPanel.showModal( self )
         return
     def knobChanged( self, knob ):
         if knob.name() == 'Login':
-            if self.validate():
+            try:
+                if self.server.login(self.inp_email.value(), self.inp_password.value())[0] == 235:
+                    self.status = 'online'
+                else:
+                    self.status = 'offline'
+                self.email = self.inp_email.value()
+                self.password = self.inp_password.value()
+                print( 'Succsessfully logged in as: ' + self.email )
+                #_write login.txt
+                self.createLogin()
                 self.ok()
+            except:
+                raise
+                return False
         return
-    def validate( self, email=None, password=None ):
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        thisDir = os.path.join(os.path.realpath(__file__), os.pardir)
-        self.validated = False
-
-        if not email or not password:
-            #_run default search
-            if os.path.exists(os.path.join(thisDir, 'login.txt')):
-                text = open(os.path.join(thisDir, 'login.txt'), 'r+')
-                lines = []
-                for line in text:
-                    lines.append( line )
-                text.close()
-                try:
-                    server.login(email, password)
-                    self.validated = True
-                    return [email, password]
-                except:
-                    print( 'Login Failed!' )
+    def validate( self ):
+        self.retrieveLogin()
+        try:
+            #_try login.txt
+            # print( 'Trying to connect using:\n' + self.email + '\n' + self.password)
+            if self.server.login(self.email, self.password)[0] == 235:
+                self.status = 'online'
             else:
-                try:
-                    print(self.inp_email.value(), self.inp_password.value())
-                    server.login(self.inp_email.value(), self.inp_password.value())
-                    self.validated = True
-                    self.email = self.email.value()
-                    self.password = self.password.value()
-                except:
-                    print( 'Prompt Login Failed!')
-
-            return
+                self.status = 'offline'
+            return [self.email, self.password]
+        except:
+            print( 'Auto-Login Failed!' )
+            self.prompt()
+        return
