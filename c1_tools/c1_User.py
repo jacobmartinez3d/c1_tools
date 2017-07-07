@@ -68,7 +68,6 @@ class Login( nukescripts.PythonPanel ):
                 self.createLogin()
                 self.ok()
             except:
-                raise
                 return False
         return
     def validate( self ):
@@ -78,9 +77,10 @@ class Login( nukescripts.PythonPanel ):
             # print( 'Trying to connect using:\n' + self.email + '\n' + self.password)
             if self.server.login(self.email, self.password)[0] == 235:
                 self.status = 'online'
+                print( 'Succsessfully logged in as: ' + self.email )
+                return [self.email, self.password]
             else:
                 self.status = 'offline'
-            return [self.email, self.password]
         except:
             print( 'Auto-Login Failed!' )
             self.prompt()

@@ -82,6 +82,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                     self.user.server.sendmail(self.user.email, toaddr, text)
                     # c1_user.server.quit()
                 except:
+                    raise
                     nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
             else:
                 nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
