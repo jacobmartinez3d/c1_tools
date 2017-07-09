@@ -8,9 +8,6 @@ import shutil
 import threading
 import smtplib
 import c1_SubmitShot as submit
-# nuke.message(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages')
-nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
-from postmarker.core import PostmarkClient
 
 c1_folders = {
     '___CameraRaw': False,
@@ -20,15 +17,6 @@ c1_folders = {
     }
 
 #_Utility Functions_____________________________________________________________
-def postmarker():
-    postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
-    postmark.emails.send(
-        From='jm@conditionone.com',
-        To='jm@conditionone.com',
-        Subject='C1 Shot Submission Test',
-        HtmlBody='<html><body><h1>C1 Shot Submission</h1>C1\'s new Artist Shot-Submission system!</body></html>'
-        )
-    return
 def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep

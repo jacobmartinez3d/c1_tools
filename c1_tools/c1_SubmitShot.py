@@ -10,6 +10,8 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 sys.path.append('../init.py')
 from init import user as c1_user
+nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
+from postmarker.core import PostmarkClient
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, data ):
@@ -65,28 +67,57 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         # -currently creates folder on gladiator before user has chance to accept or not
         #_______________________________________________________________________
         def email():
-            if self.user.status == 'online':
-                myid = emailUtils.make_msgid()
-                toaddr = "umbrellabuddha@gmail.com"
-                subject = str(self.shotName) + '_v' + str(self.fileversion).zfill(3)
-                body = self.versionFolder.path.remote + '\n\n' + self.emailMsg.value()
-                msg = MIMEMultipart()
-                msg['Subject'] = subject
-                msg['From'] = self.user.email
-                msg['To'] = toaddr
-                msg.add_header( "Message-ID", myid )
-                msg.attach(MIMEText(body, 'plain'))
-                try:
-                    self.user.server.login(self.user.email, self.user.password)
-                    text = msg.as_string()
-                    self.user.server.sendmail(self.user.email, toaddr, text)
-                    # c1_user.server.quit()
-                except:
-                    raise
-                    nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
-            else:
-                nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
+            myid = emailUtils.make_msgid()
+            postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
+            postmark.emails.send(
+                From='jm@conditionone.com',
+                To='jm@conditionone.com',
+                Subject=self.shotName,
+                ReplyTo=self.shotName + '-shot@conditionone.com',
+                Headers={
+                    'Message-ID': '<' + self.shotName + '-shot@conditionone.com>',
+                    'References': self.shotName + '-shot@conditionone.com'
+                },
+                # Headers={
+                #     'Name': 'Message-ID',
+                #     'Value': self.shotName + '-shot@conditionone.com'
+                #     },
+                #     {
+                #     'Name': 'Reply-To',
+                #     'Value': self.shotName + '-shot@conditionone.com'
+                #     },
+                #     {
+                #     'Name': 'References',
+                #     'Value': self.shotName + '-shot@conditionone.com'
+                #     }
+                # },
+                HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
+                )
             return
+
+        # def email():
+        #     if self.user.status == 'online':
+        #         myid = emailUtils.make_msgid()
+        #         toaddr = "umbrellabuddha@gmail.com"
+        #         subject = str(self.shotName) + '_v' + str(self.fileversion).zfill(3)
+        #         body = self.versionFolder.path.remote + '\n\n' + self.emailMsg.value()
+        #         msg = MIMEMultipart()
+        #         msg['Subject'] = subject
+        #         msg['From'] = self.user.email
+        #         msg['To'] = toaddr
+        #         msg.add_header( "Message-ID", myid )
+        #         msg.attach(MIMEText(body, 'plain'))
+        #         try:
+        #             self.user.server.login(self.user.email, self.user.password)
+        #             text = msg.as_string()
+        #             self.user.server.sendmail(self.user.email, toaddr, text)
+        #             # c1_user.server.quit()
+        #         except:
+        #             raise
+        #             nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
+        #     else:
+        #         nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
+        #     return
 
         def createNewRemoteVersion( serverShotFolder ):
             newVersionFolderName = self.shotName + '_v' + str(self.fileversion).zfill(3)
