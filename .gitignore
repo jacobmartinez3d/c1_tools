@@ -2,6 +2,8 @@
 !.gitignore
 !c1_tools/
 c1_tools/*
+!c1_virtualenv/
+c1_virtualenv/*
 !*.py
 !menu.py
 !init.py

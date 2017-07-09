@@ -4,22 +4,31 @@ from nukescripts import panels
 import nuke
 import os
 from string import ascii_lowercase
+import c1_tools
+
 class shotBrowser(QtGui.QWidget):
     def __init__(self, parent=None):
-        self.gladiator = self.findGladiator()
+        self.gladiator = c1_tools.findGladiator()
         QtGui.QWidget.__init__(self, parent)
         self.setLayout(QtGui.QVBoxLayout())
         #_Choose show___________________________________________________________
         self.showChoices = QtGui.QComboBox(self)
+
+        #_______________________________________________________________________
         # i want to automate this list eventually.. for now it's hard-coded...
         self.showChoices.addItem('TGR - Tigers of America')
         self.showChoices.addItem('OMF - Operation Mayflower')
         self.showChoices.addItem('ODS - Operation Deathstar')
+        self.showChoices.addItem('ODT - Operation Downtown')
+        self.showChoices.addItem('ODL - Operation Daylight')
+        self.showChoices.addItem('BRZ - Brazil')
+        #_______________________________________________________________________
+
         self.showChoices.activated[str].connect(self.retrieveShowData)
         self.layout().addWidget(self.showChoices)
         #_Shot Table____________________________________________________________
         self.shotTable          = QtGui.QTableWidget()
-        self.shotTable.header   = ['Show', 'Shot', 'Artist', 'Version', 'Notes' ]
+        self.shotTable.header   = ['Show', 'Shot', 'Artist', 'Version', 'Date' ]
         self.shotTable.size     = [ 75, 375, 375, 85, 600 ]
         self.shotTable.setColumnCount(len(self.shotTable.header))
         self.shotTable.setHorizontalHeaderLabels(self.shotTable.header)
@@ -29,23 +38,18 @@ class shotBrowser(QtGui.QWidget):
         self.shotTable.sortByColumn(1, QtCore.Qt.DescendingOrder)
         self.shotTable.setAlternatingRowColors(True)
         self.shotTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        # self.shotTable.setRowCount(50)
         self.layout().addWidget(self.shotTable)
         self.shotTable.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.retrieveShowData('TGR - Tigers of America')
-    def findGladiator(self):
-        for c in ascii_lowercase:
-            gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
-            if os.path.exists(gladiator):
-                # nuke.message('found gladiator drive on drive: ' + c)
-                return gladiator
+
+    #_Runs each time show menu item is selected_________________________________
     def retrieveShowData(self, choice):
         showCode = choice.split(' - ')[0]
         # scan the VFX folder and assemble as list
         data = []
         for folder in os.listdir(self.gladiator):
-            # iterate through all folders in '//gladiator.../_Post/__Projects/'
+            # iterate through all folders in the gladiator/___Projects directory
             folderName = os.path.basename(folder)
             # split folder name into parts here so I can count them for validation
             folderNameParts = folderName.split('_')
@@ -63,10 +67,12 @@ class shotBrowser(QtGui.QWidget):
                 # data.append(os.path.join(self.gladiator, folder))
         def populate(data):
             self.shotTable.setRowCount(0)
-            for i in range(0, len(data)-1):
+            for i in range(0, len(data)):
                 self.shotTable.insertRow(i)
                 # write showCode...
                 self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(data[i][0]))
-                # write shotCode...
+                # write shotName...
                 self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(data[i][1]))
+
+                self.shotTable.setItem(i, 2, QtGui.QTableWidgetItem())
         populate(data)
