@@ -70,7 +70,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             myid = emailUtils.make_msgid()
             postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
             postmark.emails.send(
-                From='Artist Shot Update from ' + self.user.email.split('@')[0] + '<jm@conditionone.com>',
+                From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <jm@conditionone.com>',
                 To='VFX <jm@conditionone.com>',
                 Subject=self.shotName,
                 ReplyTo='jm@conditionone.com',
