@@ -1,6 +1,5 @@
 import nuke
 import nukescripts
-#from nukescripts import panels
 from PySide import QtGui
 import os
 import re
@@ -9,6 +8,9 @@ import shutil
 import threading
 import smtplib
 import c1_SubmitShot as submit
+# nuke.message(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages')
+nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
+from postmarker.core import PostmarkClient
 
 c1_folders = {
     '___CameraRaw': False,
@@ -18,7 +20,15 @@ c1_folders = {
     }
 
 #_Utility Functions_____________________________________________________________
-
+def postmarker():
+    postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
+    postmark.emails.send(
+        From='jm@conditionone.com',
+        To='jm@conditionone.com',
+        Subject='C1 Shot Submission Test',
+        HtmlBody='<html><body><h1>C1 Shot Submission</h1>C1\'s new Artist Shot-Submission system!</body></html>'
+        )
+    return
 def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
@@ -27,7 +37,7 @@ def findGladiator():
     #     if os.path.exists(gladiator):
     #         nuke.message('yo')
             #return gladiator
-    return debugDir
+    return laptopDir
 
 
 def scanDir(inputDir):
@@ -221,7 +231,9 @@ def submitShot( filepath ):
             self.showFolder = Folder()
 
             def validate():
-                fragment1 = os.path.basename(filepath).split('_v')
+                nukeScriptName = nuke.toNode('root').name()
+                nukeScriptName = 'Untitled' if nukeScriptName == 'Root' else nukeScriptName
+                fragment1 = os.path.basename(self.filepath).split('_v')
                 fragment2 = fragment1[0].split('_')
                 fragmentsArr = []
                 self.filename = fragment1[0]
@@ -233,47 +245,46 @@ def submitShot( filepath ):
                     fileversion = int(fragment1[1].split('.')[0])
                     self.fileversion = fileversion
                 except:
-                    exceptions.append('--> Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n')
-                if self.fileversion:
-                    #_____showFolder, showCode, shotName
-                    try:
-                        if not self.showFolder.path.set( 'remote', retrieveServerShowFolder( fragment2[0]) ):
-                            exceptions.append( '--> No corresponding Show folder found at: ' + self.gladiator + '\n\nCorrect naming:\nshowcode_shotname_vXXX\n')
-                        else:
-                            self.showCode = fragment2[0]
-                            self.shotName = fragment1[0].split((self.showCode + '_'))[1].split('.')[0]
-                    except:
-                        exceptions.append('--> Problem retrieving Show directories. Now show found for: ' + str(fragment2[0]) + '\n' )
-                if self.showFolder.path.remote:
-                    #_____shotFolder
-                    try:
-                        if not self.shotFolder.path.set( 'remote', retrieveServerShotFolder(self.showFolder.path.remote, self.showCode, self.shotName) ):
-                            exceptions.append('--> No corresponding Shot folder found for \'' + str( self.shotName ) + '\'\n')
-                        else:
-                            self.shotFolder.path.set( 'local', os.path.abspath(os.path.join(filepath, os.pardir)) )
-                    except:
-                        exceptions.append('--> Problem retrieving Shot directories. Now shot found for: \'' + str( self.shotName ) + '\'\n')
-                if self.shotFolder.path.remote:
-                    #_____versionFolder
-                    try:
-                        self.versionFolder.path.set( 'local', os.path.abspath(os.path.join(self.filepath, os.pardir)) )
-                        latestVersion = retrieveLatestVersion(self.shotFolder.path.remote, self.showCode)
-                        # nuke.message( self.shotFolder.path.remote )
-                        self.versionFolder.path.set( 'remote', latestVersion['path'] )
-                        self.versionFolder.ver.set( 'remote', latestVersion['int'] )
-                    except:
-                        exceptions.append('--> Problem setting the path or version for ' + self.shotFolder.path.remote + '.\n')
-                    try:
-                        ver = int(os.path.basename(self.versionFolder.path.local).split('_v')[1])
-                        self.versionFolder.ver.set( 'local', ver )
-                    except:
-                        exceptions.append('--> The folder you\'r working out of doesn\'t have a valid version-number.\n\nCorrect naming:\nshowcode_shotname_vXXX\n' )
+                    exceptions.append('--> Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
+                #_____showFolder, showCode, shotName
+                try:
+                    if not self.showFolder.path.set( 'remote', retrieveServerShowFolder( fragment2[0]) ):
+                        exceptions.append( '--> No corresponding Show folder found at:\n' + self.gladiator + '\n\n')
+                    else:
+                        self.showCode = fragment2[0]
+                        self.shotName = fragment1[0].split((self.showCode + '_'))[1].split('.')[0]
+                except:
+                    exceptions.append('--> Problem retrieving Show directories. Now show found for:\n' + str(fragment2[0]) + '\n\n' )
+            # if self.showFolder.path.remote:
+                #_____shotFolder
+                try:
+                    if not self.shotFolder.path.set( 'remote', retrieveServerShotFolder(self.showFolder.path.remote, self.showCode, self.shotName) ):
+                        exceptions.append('--> No corresponding Shot folder found for\n\'' + str( nukeScriptName ) + '\'\n\n')
+                    else:
+                        self.shotFolder.path.set( 'local', os.path.abspath(os.path.join(filepath, os.pardir)) )
+                except:
+                    exceptions.append('--> Problem retrieving Shot directories. Now shot found for:\n\'' + str( nukeScriptName ) + '\'\n\n')
+            # if self.shotFolder.path.remote:
+                #_____versionFolder
+                try:
+                    self.versionFolder.path.set( 'local', os.path.abspath(os.path.join(self.filepath, os.pardir)) )
+                    latestVersion = retrieveLatestVersion(self.shotFolder.path.remote, self.showCode)
+                    # nuke.message( self.shotFolder.path.remote )
+                    self.versionFolder.path.set( 'remote', latestVersion['path'] )
+                    self.versionFolder.ver.set( 'remote', latestVersion['int'] )
+                except:
+                    exceptions.append('--> Problem setting the path or version for ' + nukeScriptName + '.\n\n')
+                try:
+                    ver = int(os.path.basename(self.versionFolder.path.local).split('_v')[1])
+                    self.versionFolder.ver.set( 'local', ver )
+                except:
+                    exceptions.append('--> The folder you\'r working out of doesn\'t have a valid version-number.\n\n' )
                 #_exceptions____________________________________________________
                 if len(exceptions) > 0:
                     msg = ''
                     i = 1
                     for exception in exceptions:
-                        msg = msg + 'Exception ' + str(i) + ') ' + exception
+                        msg = msg + 'Filenaming Error ' + str(i) + '):\n ' + exception
                         i = i+1
                     nuke.message( msg )
                     return False

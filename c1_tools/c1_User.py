@@ -14,9 +14,9 @@ class Login( nukescripts.PythonPanel ):
         self.email = None
         self.password = None
         self.scriptDir = {
-        'root':     os.path.join(os.path.join(os.path.realpath(__file__), os.pardir), os.pardir),
-        'c1_tools': os.path.join(os.path.realpath(__file__), os.pardir)
-        }
+            'root': os.path.join(os.path.join(os.path.realpath(__file__), os.pardir), os.pardir),
+            'c1_tools': os.path.join(os.path.realpath(__file__), os.pardir)
+            }
         #_define knobs
         self.inp_email = nuke.String_Knob( 'email', 'C1 Email: ')
         self.inp_password = nuke.Password_Knob( 'password', 'Password: ')
@@ -68,6 +68,7 @@ class Login( nukescripts.PythonPanel ):
                 self.createLogin()
                 self.ok()
             except:
+                raise
                 return False
         return
     def validate( self ):
