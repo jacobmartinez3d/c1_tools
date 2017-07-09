@@ -70,27 +70,15 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             myid = emailUtils.make_msgid()
             postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
             postmark.emails.send(
-                From='jm@conditionone.com',
-                To='jm@conditionone.com',
+                From='Artist Shot Update from ' + self.user.email.split('@')[0] + '<jm@conditionone.com>',
+                To='VFX <jm@conditionone.com>',
                 Subject=self.shotName,
-                ReplyTo=self.shotName + '-shot@conditionone.com',
-                Headers={
-                    'Message-ID': '<' + self.shotName + '-shot@conditionone.com>',
-                    'References': self.shotName + '-shot@conditionone.com'
-                },
-                # Headers={
-                #     'Name': 'Message-ID',
-                #     'Value': self.shotName + '-shot@conditionone.com'
-                #     },
-                #     {
-                #     'Name': 'Reply-To',
-                #     'Value': self.shotName + '-shot@conditionone.com'
-                #     },
-                #     {
-                #     'Name': 'References',
-                #     'Value': self.shotName + '-shot@conditionone.com'
-                #     }
-                # },
+                ReplyTo='jm@conditionone.com',
+                Headers=
+                    {
+                    'Message-ID': '<' + self.shotName + '@conditionone.com>',
+                    'References': self.shotName + '@conditionone.com'
+                    },
                 HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
                 )
             return

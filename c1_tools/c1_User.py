@@ -19,12 +19,10 @@ class Login( nukescripts.PythonPanel ):
             }
         #_define knobs
         self.inp_email = nuke.String_Knob( 'email', 'C1 Email: ')
-        self.inp_password = nuke.Password_Knob( 'password', 'Password: ')
         self.loginButton = nuke.PyScript_Knob("Login")
         self.cancelButton = nuke.PyScript_Knob("Cancel")
         #_add knobs
         self.addKnob( self.inp_email )
-        self.addKnob( self.inp_password )
         self.addKnob( self.loginButton )
         self.addKnob( self.cancelButton )
         #_retrieve previous login from login.txt
@@ -39,14 +37,14 @@ class Login( nukescripts.PythonPanel ):
                 lines.append( line )
             text.close()
             self.email = lines[0]
-            self.password = lines[1]
+        else:
+            self.prompt()
         return
     #_create login.txt data
     def createLogin( self ):
         try:
             text = open(os.path.join(self.scriptDir['c1_tools'], 'login.txt'), 'w')
             text.write( self.inp_email.value() + '\n')
-            text.write( self.inp_password.value() + '\n')
             text.close()
         except:
             print( 'Failed to save login info! ')
@@ -56,33 +54,13 @@ class Login( nukescripts.PythonPanel ):
         return
     def knobChanged( self, knob ):
         if knob.name() == 'Login':
-            try:
-                if self.server.login(self.inp_email.value(), self.inp_password.value())[0] == 235:
-                    self.status = 'online'
-                else:
-                    self.status = 'offline'
-                self.email = self.inp_email.value()
-                self.password = self.inp_password.value()
-                print( 'Succsessfully logged in as: ' + self.email )
-                #_write login.txt
-                self.createLogin()
-                self.ok()
-            except:
-                raise
-                return False
+            self.email = self.inp_email.value()
+            self.status = 'online'
+            print( 'Succsessfully logged in as: ' + self.email )
+            #_write login.txt
+            self.createLogin()
+            self.ok()
         return
     def validate( self ):
         self.retrieveLogin()
-        try:
-            #_try login.txt
-            # print( 'Trying to connect using:\n' + self.email + '\n' + self.password)
-            if self.server.login(self.email, self.password)[0] == 235:
-                self.status = 'online'
-                print( 'Succsessfully logged in as: ' + self.email )
-                return [self.email, self.password]
-            else:
-                self.status = 'offline'
-        except:
-            print( 'Auto-Login Failed!' )
-            self.prompt()
         return
