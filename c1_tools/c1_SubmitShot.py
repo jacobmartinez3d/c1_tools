@@ -79,7 +79,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                     'Message-ID': '<' + self.shotName + '@conditionone.com>',
                     'References': self.shotName + '@conditionone.com'
                     },
-                HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
+                HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><h2 style="color:#ddd">Link</h2><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc"><h2 style="color:#ddd">Notes</h2>' + self.emailMsg.value() + '</div></body></html>'
                 )
             return
 

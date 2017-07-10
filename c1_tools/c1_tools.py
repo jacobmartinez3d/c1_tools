@@ -178,7 +178,22 @@ def versionUp(file):
     nuke.scriptSaveAs(os.path.join(newDir, filename[0] + '_v' + newVersion + '.nk'))
     nuke.message('Current version: ' + newVersion)
     return
-
+def retrieveLatestVersion( directory, showCode ):
+    # get latest version on server
+    latestVersion = 0
+    path = None
+    for folder in os.listdir(directory):
+        # nuke.message(folder)
+        pieces = folder.split('_v')
+        if os.path.isdir(os.path.join(directory, folder)):
+            # one last small validation..
+            if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
+                versionNum = int(pieces[1])
+                if versionNum > latestVersion:
+                    latestVersion = versionNum
+                    path = os.path.join(directory, folder )
+        # nuke.message(directory + '_' + str(os.path.abspath(folder)))
+    return { 'int':latestVersion, 'path':path }
 def submitShot( filepath ):
     class Attr():
         def __init__( self, name=None, val=None ):
@@ -228,7 +243,6 @@ def submitShot( filepath ):
 
                 #_VALIDATE______________________________________________________
                 exceptions = []
-
                 try:
                     fileversion = int(fragment1[1].split('.')[0])
                     self.fileversion = fileversion
@@ -243,7 +257,6 @@ def submitShot( filepath ):
                         self.shotName = fragment1[0].split((self.showCode + '_'))[1].split('.')[0]
                 except:
                     exceptions.append('--> Problem retrieving Show directories. Now show found for:\n' + str(fragment2[0]) + '\n\n' )
-            # if self.showFolder.path.remote:
                 #_____shotFolder
                 try:
                     if not self.shotFolder.path.set( 'remote', retrieveServerShotFolder(self.showFolder.path.remote, self.showCode, self.shotName) ):
@@ -252,12 +265,10 @@ def submitShot( filepath ):
                         self.shotFolder.path.set( 'local', os.path.abspath(os.path.join(filepath, os.pardir)) )
                 except:
                     exceptions.append('--> Problem retrieving Shot directories. Now shot found for:\n\'' + str( nukeScriptName ) + '\'\n\n')
-            # if self.shotFolder.path.remote:
                 #_____versionFolder
                 try:
                     self.versionFolder.path.set( 'local', os.path.abspath(os.path.join(self.filepath, os.pardir)) )
                     latestVersion = retrieveLatestVersion(self.shotFolder.path.remote, self.showCode)
-                    # nuke.message( self.shotFolder.path.remote )
                     self.versionFolder.path.set( 'remote', latestVersion['path'] )
                     self.versionFolder.ver.set( 'remote', latestVersion['int'] )
                 except:
@@ -298,23 +309,6 @@ def submitShot( filepath ):
                         if folder.split(showCode + '_')[-1] == shotName:
                             serverShotFolder = os.path.join(serverShowFolder, folder)
                 return serverShotFolder
-
-            def retrieveLatestVersion( directory, showCode ):
-                # get latest version on server
-                latestVersion = 0
-                path = None
-                for folder in os.listdir(directory):
-                    pieces = folder.split('_v')
-                    if os.path.isdir(os.path.join(directory, folder)):
-                        # one last small validation..
-                        if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
-                            versionNum = int(pieces[1])
-                            if versionNum > latestVersion:
-                                latestVersion = versionNum
-                                path = os.path.join(directory, folder )
-                    # nuke.message(directory + '_' + str(os.path.abspath(folder)))
-                return { 'int':latestVersion, 'path':path }
-
             if validate():
                 self.validated = True
             #/init
