@@ -20,12 +20,12 @@ c1_folders = {
 def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
-    # for c in ascii_lowercase:
-    #     gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
-    #     if os.path.exists(gladiator):
-    #         nuke.message('yo')
-            #return gladiator
-    return laptopDir
+    for c in ascii_lowercase:
+        gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
+        if os.path.exists(gladiator):
+            # nuke.message('yo')
+            return gladiator
+    # return laptopDir
 
 
 def scanDir(inputDir):
@@ -182,17 +182,21 @@ def retrieveLatestVersion( directory, showCode ):
     # get latest version on server
     latestVersion = 0
     path = None
-    for folder in os.listdir(directory):
-        # nuke.message(folder)
-        pieces = folder.split('_v')
-        if os.path.isdir(os.path.join(directory, folder)):
-            # one last small validation..
-            if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
-                versionNum = int(pieces[1])
-                if versionNum > latestVersion:
-                    latestVersion = versionNum
-                    path = os.path.join(directory, folder )
-        # nuke.message(directory + '_' + str(os.path.abspath(folder)))
+    # nuke.message(directory)
+    try:
+        for folder in os.listdir(directory):
+            # nuke.message(folder)
+            if os.path.isdir(os.path.join(directory, folder)):
+                pieces = folder.split('_v')
+                # one last small validation..
+                if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
+                    versionNum = int(pieces[1])
+                    if versionNum > latestVersion:
+                        latestVersion = versionNum
+                        path = os.path.join(directory, folder )
+    except:
+        print('c1_tools.retrieveLatestVersion(): Error processing something in' + str(directory) + '.')
+            # nuke.message(directory + '_' + str(os.path.abspath(folder)))
     return { 'int':latestVersion, 'path':path }
 def submitShot( filepath ):
     class Attr():

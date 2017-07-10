@@ -1,10 +1,11 @@
 import c1_tools.c1_tools as c1_tools
 import c1_tools.c1_ShotBrowser as c1_shotBrowser
+import init
 import nuke
 import nukescripts
 
 def open_shotBrowser():
-    nukescripts.panels.registerWidgetAsPanel('c1_shotBrowser.shotBrowser', 'C1 Shot Browser', 'c1_shotBrowser', True).addToPane()
+    nukescripts.panels.registerWidgetAsPanel('c1_shotBrowser.ShotBrowser', 'C1 Shot Browser', 'c1_shotBrowser', True).addToPane()
 # _callbacks____________________________________________________________________
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Shot Browser', 'open_shotBrowser()' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Create Shot Sub-Folder Structure', 'c1_tools.createShotFolder()' )

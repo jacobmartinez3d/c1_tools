@@ -6,16 +6,17 @@ import os
 from string import ascii_lowercase
 import c1_tools
 
-class shotBrowser(QtGui.QWidget):
-    def __init__(self, parent=None):
+class ShotBrowser( QtGui.QWidget ):
+    def __init__( self, parent=None ):
         self.gladiator = c1_tools.findGladiator()
         self.data = {
-            'path': [],
+            'path': {},
             'nameParts': [],
             'version': []
             }
-        self.buttonsArr = []
+        self.buttonsArr = {}
         QtGui.QWidget.__init__(self, parent)
+        self.btn_group = QtGui.QButtonGroup( self )
         self.setLayout(QtGui.QVBoxLayout())
         #_Choose show___________________________________________________________
         self.showChoices = QtGui.QComboBox(self)
@@ -46,13 +47,14 @@ class shotBrowser(QtGui.QWidget):
         self.shotTable.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.retrieveShowData('TGR - Tigers of America')
+        self.btn_group.buttonClicked.connect( self.handleButtonClicked )
 
-    def handleButtonClicked( self, buttonId ):
-        nuke.message(str(buttonId))
-
+    def handleButtonClicked( self, button ):
+        self.download(button.text())
         return
     #_Runs each time show menu item is selected_________________________________
     def retrieveShowData(self, choice):
+        self.reset()
         showCode = choice.split(' - ')[0]
         # scan the VFX folder and assemble as list
         for folder in os.listdir(self.gladiator):
@@ -69,10 +71,12 @@ class shotBrowser(QtGui.QWidget):
                     nameParts = os.path.basename(shotFolder).split('_', 1)
                     path = os.path.join(fullPath, shotFolder)
                     version = c1_tools.retrieveLatestVersion(path, showCode)['int']
-                    # nuke.message(path)
+                    # compile self.data
                     if nameParts[0] == showCode:
                         self.data['nameParts'].append(nameParts)
-                        self.data['path'].append(path)
+                        # set shotName as key, shotFolder path as value
+                        versionFolderName = nameParts[0] + '_' + nameParts[1] + '_v' + str(version).zfill(3)
+                        self.data['path'][nameParts[1]] = os.path.join(path, versionFolderName)
                         if version < 1:
                             self.data['version'].append('No Submissions')
                         else:
@@ -84,19 +88,26 @@ class shotBrowser(QtGui.QWidget):
                 self.shotTable.insertRow(i)
                 # write shotName...
                 self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(self.data['nameParts'][i][1]))
-                # write version...
+                # write version... (breaks populate() for some reason...)
                 # self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
                 # button
-                self.buttonsArr.append(QtGui.QPushButton('Download Shot'))
-                self.buttonsArr[i].clicked.connect(lambda: self.handleButtonClicked(i))
-                self.shotTable.setCellWidget(i, 2, self.buttonsArr[i])
-                # self.shotTable.item(i, 2).clicked.connect(self.handleButtonClicked)
+                self.btn_group.addButton( QtGui.QPushButton(data['nameParts'][i][1]), i )
+                self.shotTable.setCellWidget( i, 2, self.btn_group.button(i) )
             return
         populate(self.data)
+    def reset( self ):
         self.data = {
-            'path': [],
+            'path': {},
             'nameParts': [],
             'version': []
             }
-        self.buttonsArr = []
+        for button in self.btn_group.buttons():
+            self.btn_group.removeButton(button)
+        return
+    def download( self, shotName ):
+
+        for thing in os.listdir(self.data['path'][shotName]):
+            copyFrom = os.path.join(self.data['path'][shotName], thing)
+            copyTo = 'd' + os.sep + shotName
+        nuke.message(self.data['path'][shotName])
         return
