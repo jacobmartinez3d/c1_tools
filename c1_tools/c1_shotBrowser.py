@@ -14,6 +14,7 @@ class shotBrowser(QtGui.QWidget):
             'nameParts': [],
             'version': []
             }
+        self.buttonsArr = []
         QtGui.QWidget.__init__(self, parent)
         self.setLayout(QtGui.QVBoxLayout())
         #_Choose show___________________________________________________________
@@ -46,6 +47,10 @@ class shotBrowser(QtGui.QWidget):
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.retrieveShowData('TGR - Tigers of America')
 
+    def handleButtonClicked( self, buttonId ):
+        nuke.message(str(buttonId))
+
+        return
     #_Runs each time show menu item is selected_________________________________
     def retrieveShowData(self, choice):
         showCode = choice.split(' - ')[0]
@@ -74,14 +79,18 @@ class shotBrowser(QtGui.QWidget):
                             self.data['version'].append(version)
         def populate(data):
             self.shotTable.setRowCount(0)
-            for i in range(0, len(data['version'])):
+            for i in range(0, len(data['nameParts'])):
+                # nuke.message(str(self.data['version'][i]))
                 self.shotTable.insertRow(i)
                 # write shotName...
                 self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(self.data['nameParts'][i][1]))
                 # write version...
-                self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
+                # self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
                 # button
-                self.shotTable.setCellWidget(i, 2, QtGui.QPushButton('Download Shot'))
+                self.buttonsArr.append(QtGui.QPushButton('Download Shot'))
+                self.buttonsArr[i].clicked.connect(lambda: self.handleButtonClicked(i))
+                self.shotTable.setCellWidget(i, 2, self.buttonsArr[i])
+                # self.shotTable.item(i, 2).clicked.connect(self.handleButtonClicked)
             return
         populate(self.data)
         self.data = {
@@ -89,4 +98,5 @@ class shotBrowser(QtGui.QWidget):
             'nameParts': [],
             'version': []
             }
+        self.buttonsArr = []
         return

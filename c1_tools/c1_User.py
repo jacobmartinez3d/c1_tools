@@ -8,9 +8,9 @@ import smtplib
 class Login( nukescripts.PythonPanel ):
     def __init__( self ):
         nukescripts.PythonPanel.__init__( self, 'C1 Login')
-        self.server = smtplib.SMTP('smtp.gmail.com', 587)
-        self.status = 'offline'
-        self.server.starttls()
+        # self.server = smtplib.SMTP('smtp.gmail.com', 587)
+        # self.status = 'offline'
+        # self.server.starttls()
         self.email = None
         self.password = None
         self.scriptDir = {
