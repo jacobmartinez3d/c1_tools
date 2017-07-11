@@ -132,6 +132,15 @@ class ShotBrowser( QtGui.QWidget ):
         #_NOTES_
         # need a valid iterator for taskbar
         # need to integrate/share with SubmitShot()
+        #_Notes for next version_
+        # 1) create localShotFolder
+        # 2) create subFolderStructure
+        # 3) checkbox to include:
+        #       raw footage,
+        #       most recent submission,
+        #       pipeline layers
+        # 4) copy() selected items + Production Stitches
+        # 5) version up & create new shotFolder
         progIncr = 100.0 / self.numberOfThings
 
         def copy(src, dst):
@@ -143,12 +152,11 @@ class ShotBrowser( QtGui.QWidget ):
         if self.task.isCancelled():
             nuke.executeInMainThread( nuke.message, args=( "Aborted!" ) )
             return
-        newDir = 'd:' + os.sep + self.showCode + '_' + shotName
+        newDir = 'd:' + os.sep + self.showCode + '_' + shotName #temp
         if not os.path.exists(newDir):
             os.mkdir(newDir)
             if not os.path.exists(os.path.join(newDir, self.showCode + '_' + shotName + '_v' + 005)):
                 os.mkdir(os.path.join(newDir, self.showCode + '_' + shotName + '_v' + 005))
-        # os.mkdir(os.path.join(newDir, 'Prerenders'))
         for thing in os.listdir(self.data['path'][shotName]):
             copyFrom = os.path.join(self.data['path'][shotName], thing)
             copyTo = os.path.join(newDir, thing)
