@@ -5,6 +5,9 @@ import nuke
 import os
 from string import ascii_lowercase
 import c1_tools
+import subprocess
+import shutil
+import threading
 
 class ShotBrowser( QtGui.QWidget ):
     def __init__( self, parent=None ):
@@ -13,6 +16,11 @@ class ShotBrowser( QtGui.QWidget ):
             'path': {},
             'nameParts': [],
             'version': []
+            }
+        self.things = {
+            'roots': [],
+            'dirs': [],
+            'files': []
             }
         self.buttonsArr = {}
         QtGui.QWidget.__init__(self, parent)
@@ -50,6 +58,21 @@ class ShotBrowser( QtGui.QWidget ):
         self.btn_group.buttonClicked.connect( self.handleButtonClicked )
 
     def handleButtonClicked( self, button ):
+        self.task = nuke.ProgressTask("Downloading...")
+        self.numberOfThings = 0
+
+        for roots, dirs, files in os.walk( self.data['path'][button.text()] ):
+            self.things['roots'].append(roots)
+            for dir in dirs:
+                self.things['dirs'].append(dir)
+            for file in files:
+                self.things['files'].append(file)
+        print(str(self.things))
+        if len(self.things['files']) > 0:
+            self.numberOfThings = len(self.things['files'])
+        else:
+            self.numberOfThings = 1
+        #need to un-include files not to be copied
         self.download(button.text())
         return
     #_Runs each time show menu item is selected_________________________________
@@ -81,6 +104,7 @@ class ShotBrowser( QtGui.QWidget ):
                             self.data['version'].append('No Submissions')
                         else:
                             self.data['version'].append(version)
+                    self.showCode = nameParts[0]
         def populate(data):
             self.shotTable.setRowCount(0)
             for i in range(0, len(data['nameParts'])):
@@ -105,9 +129,35 @@ class ShotBrowser( QtGui.QWidget ):
             self.btn_group.removeButton(button)
         return
     def download( self, shotName ):
+        #_NOTES_
+        # need a valid iterator for taskbar
+        # need to integrate/share with SubmitShot()
+        progIncr = 100.0 / self.numberOfThings
 
+        def copy(src, dst):
+            fsrc = open(src, 'rb').read()
+            with open(dst, 'wb') as fdst:
+                fdst.write(fsrc)
+            fsrc.close()
+            fdst.close()
+        if self.task.isCancelled():
+            nuke.executeInMainThread( nuke.message, args=( "Aborted!" ) )
+            return
+        newDir = 'd:' + os.sep + self.showCode + '_' + shotName
+        if not os.path.exists(newDir):
+            os.mkdir(newDir)
+            if not os.path.exists(os.path.join(newDir, self.showCode + '_' + shotName + '_v' + 005)):
+                os.mkdir(os.path.join(newDir, self.showCode + '_' + shotName + '_v' + 005))
+        # os.mkdir(os.path.join(newDir, 'Prerenders'))
         for thing in os.listdir(self.data['path'][shotName]):
             copyFrom = os.path.join(self.data['path'][shotName], thing)
-            copyTo = 'd' + os.sep + shotName
-        nuke.message(self.data['path'][shotName])
-        return
+            copyTo = os.path.join(newDir, thing)
+            nuke.message(copyFrom + '_' + copyTo)
+            try:
+                shutil.copytree(copyFrom, copyTo)
+            except:
+                print('error occured downloading something')
+            self.task.setProgress(int(progIncr)) #have to multiple progIncr by iterator
+            self.task.setMessage(thing)
+        # nuke.message(self.data['path'][shotName])
+        return subprocess.Popen('explorer "%s"' % newDir)

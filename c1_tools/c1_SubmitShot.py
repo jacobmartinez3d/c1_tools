@@ -132,6 +132,10 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                 # 2. add the 360_3DV.mp4 to the copy operation
                 # 3. after aborting, need to delete the files
                 #_______________________________________________________________
+                def copy(src, dst):
+                    fsrc = open(src, 'rb').read()
+                    with open(dst, 'wb') as fdst:
+                        fdst.write(fsrc)
 
                 task = nuke.ProgressTask("Submitting...")
                 #need to change
@@ -161,7 +165,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                             #use os module
                         #nuke.executeInMainThread( cancelSubmission, args=( newVersionFolderPath ) )
                         #_______________________________________________________
-                        return;
+                        return
                     task.setProgress(int(i * progIncr))
                     task.setMessage(f)
 
@@ -171,7 +175,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                             copyFrom = os.path.join(localPrerenders, f)
                             copyTo = os.path.join(remotePrerenders, f)
                             try:
-                                shutil.copyfile(copyFrom, copyTo)
+                                copy(copyFrom, copyTo)
                             except:
                                 msg = "--> No 'Prerenders' folder found!\n"
                                 exceptions.append( msg )
@@ -179,7 +183,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                             copyFrom = os.path.join(self.versionFolder.path.local, (self.filename + '_v' + str(self.versionFolder.ver.local).zfill(3) + '_360_3DV.mp4'))
                             copyTo = os.path.join(os.path.join(self.shotFolder.path.remote, (self.filename + '_v' + str(self.versionFolder.ver.remote + 1).zfill(3))), (self.filename + '_360_3DV.mp4'))
                             try:
-                                shutil.copyfile(copyFrom, copyTo)
+                                copy(copyFrom, copyTo)
                             except:
                                 msg = "--> No '360_3DV.mp4' found!\n"
                                 exceptions.append( msg )

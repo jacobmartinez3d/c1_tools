@@ -20,12 +20,12 @@ c1_folders = {
 def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
-    for c in ascii_lowercase:
-        gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
-        if os.path.exists(gladiator):
-            # nuke.message('yo')
-            return gladiator
-    # return laptopDir
+    # for c in ascii_lowercase:
+    #     gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
+    #     if os.path.exists(gladiator):
+    #         # nuke.message('yo')
+    #         return gladiator
+    return debugDir
 
 
 def scanDir(inputDir):
