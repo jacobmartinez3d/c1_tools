@@ -25,7 +25,7 @@ def findGladiator():
     #     if os.path.exists(gladiator):
     #         # nuke.message('yo')
     #         return gladiator
-    return debugDir
+    return laptopDir
 
 
 def scanDir(inputDir):
