@@ -1,10 +1,15 @@
 import PySide.QtCore as QtCore
 import PySide.QtGui as QtGui
+import sys
 from nukescripts import panels
 import nuke
 import os
 from string import ascii_lowercase
 import c1_tools
+from c1_Data import Data
+from c1_Copy import Copy
+sys.path.append('../init.py')
+from init import user
 import subprocess
 import shutil
 import threading
@@ -54,26 +59,27 @@ class ShotBrowser( QtGui.QWidget ):
         self.layout().addWidget(self.shotTable)
         self.shotTable.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
-        self.retrieveShowData('TGR - Tigers of America')
+        self.retrieveShowData('ODS - Operation Deathstar')
         self.btn_group.buttonClicked.connect( self.handleButtonClicked )
 
     def handleButtonClicked( self, button ):
-        self.task = nuke.ProgressTask("Downloading...")
-        self.numberOfThings = 0
-
-        for roots, dirs, files in os.walk( self.data['path'][button.text()] ):
-            self.things['roots'].append(roots)
-            for dir in dirs:
-                self.things['dirs'].append(dir)
-            for file in files:
-                self.things['files'].append(file)
-        print(str(self.things))
-        if len(self.things['files']) > 0:
-            self.numberOfThings = len(self.things['files'])
-        else:
-            self.numberOfThings = 1
+        # for roots, dirs, files in os.walk( self.data['path'][button.text()] ):
+        #     self.things['roots'].append(roots)
+        #     for dir in dirs:
+        #         self.things['dirs'].append(dir)
+        #     for file in files:
+        #         self.things['files'].append(file)
+        # print(str(self.things))
+        # if len(self.things['files']) > 0:
+        #     self.numberOfThings = len(self.things['files'])
+        # else:
+        #     self.numberOfThings = 1
         #need to un-include files not to be copied
-        self.download(button.text())
+        # self.download(button.text())
+        target = self.data['path'][button.text()]
+        data = Data( 'download', target, self.gladiator )
+        request = Copy( target, user.workingDir, data  )
+        request.download()
         return
     #_Runs each time show menu item is selected_________________________________
     def retrieveShowData(self, choice):

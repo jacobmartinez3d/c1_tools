@@ -51,7 +51,7 @@ class Login( nukescripts.PythonPanel ):
         try:
             text = open(os.path.join(self.scriptDir['c1_tools'], 'login.txt'), 'w')
             text.write( self.inp_email.value() + '\n')
-            text.write( self.inp_workingDir.value() + '\n')
+            text.write( self.inp_workingDir.value())
             text.close()
         except:
             print( 'Failed to save login info! ')

@@ -83,30 +83,6 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                 )
             return
 
-        # def email():
-        #     if self.user.status == 'online':
-        #         myid = emailUtils.make_msgid()
-        #         toaddr = "umbrellabuddha@gmail.com"
-        #         subject = str(self.shotName) + '_v' + str(self.fileversion).zfill(3)
-        #         body = self.versionFolder.path.remote + '\n\n' + self.emailMsg.value()
-        #         msg = MIMEMultipart()
-        #         msg['Subject'] = subject
-        #         msg['From'] = self.user.email
-        #         msg['To'] = toaddr
-        #         msg.add_header( "Message-ID", myid )
-        #         msg.attach(MIMEText(body, 'plain'))
-        #         try:
-        #             self.user.server.login(self.user.email, self.user.password)
-        #             text = msg.as_string()
-        #             self.user.server.sendmail(self.user.email, toaddr, text)
-        #             # c1_user.server.quit()
-        #         except:
-        #             raise
-        #             nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
-        #     else:
-        #         nuke.message( 'Could not log in, no email was sent with this submission! Restart Nuke to try reconnecting.' )
-        #     return
-
         def createNewRemoteVersion( serverShotFolder ):
             newVersionFolderName = self.shotName + '_v' + str(self.fileversion).zfill(3)
             self.versionFolder.path.set( 'remote', os.path.join(serverShotFolder, self.showCode + '_' + newVersionFolderName))
@@ -138,16 +114,10 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                         fdst.write(fsrc)
 
                 task = nuke.ProgressTask("Submitting...")
-                #need to change
                 versionFiles = os.listdir(self.versionFolder.path.local)
-                #filter out unaccepted files
                 arr = versionFiles
-                # for item in versionFiles:
-                #     if os.path.isdir(item):
-                #         nuke.executeInMainThread( nuke.message, args=( str(item) ) )
                 frames = os.listdir(localPrerenders)
 
-                #need to un-include files not to be copied
                 progIncr = 100.0 / len(frames)
                 acceptedFiles = {
                     'Prerenders': 'Prerenders',

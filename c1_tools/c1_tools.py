@@ -20,13 +20,12 @@ c1_folders = {
 def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
-    # for c in ascii_lowercase:
-    #     gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
-    #     if os.path.exists(gladiator):
-    #         # nuke.message('yo')
-    #         return gladiator
-    return laptopDir
-
+    for c in ascii_lowercase:
+        gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
+        if os.path.exists(gladiator):
+            # nuke.message('yo')
+            return gladiator
+    return debugDir
 
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
@@ -57,7 +56,6 @@ def scanDir(inputDir):
             missing.append(folder)
     return {'foundDirs': foundDirs, 'foundC1Dirs': foundC1Dirs, 'missing': missing}
 
-#_compile list of versions in directory(folders only)___________________________
 def retrieveShotFolderVersions(foundDirs):
     if not foundDirs:
         return None
@@ -71,29 +69,37 @@ def retrieveShotFolderVersions(foundDirs):
         versions = None
     return versions
 
-def createShotFolder():
-    shotFolder = nuke.getFilename('Navigate to local Shot Folder...')
+def createShotFolder( flag=None, shotFolder=None ):
+    if flag is 'auto':
+        shotFolder = shotFolder
+    else:
+        shotFolder = nuke.getFilename('Navigate to local Shot Folder...')
     parentFolder = os.path.abspath(os.path.join(shotFolder, os.pardir))
 
-    # run a quick validation on the parent folder to see if user mis-clicked
-    parentResults = scanDir(parentFolder)['foundC1Dirs']
-    if parentResults:
-        if nuke.ask('This folder appears to be nested inside a shot folder, did you mean to choose, ' + parentFolder + '?'):
-            shotFolder = parentFolder
-            print 'changing shot folder to: ' + parentFolder + '...'
-    if os.path.isdir(shotFolder):
-        shot = shotFolder.split(os.sep)[-1]
-    else:
-        nuke.message('You must choose a folder or directory!')
-        return
+    if flag is not 'auto':
+        # run a quick validation on the parent folder to see if user mis-clicked
+        parentResults = scanDir(parentFolder)['foundC1Dirs']
+        if parentResults:
+            if nuke.ask('This folder appears to be nested inside a shot folder, did you mean to choose, ' + parentFolder + '?'):
+                shotFolder = parentFolder
+                print 'changing shot folder to: ' + parentFolder + '...'
+        if os.path.isdir(shotFolder):
+            shot = shotFolder.split(os.sep)[-1]
+        else:
+            nuke.message('You must choose a folder or directory!')
+            return
 
     results = scanDir(shotFolder)
-    # if missing C1 folders exist, ask user to create
     if results['missing']:
-        if nuke.ask('The following folders are missing: ' + '\n' + str(results['missing'])[1:-1] + ', create them now?'):
+        if flag is 'auto':
             for missingDir in results['missing']:
                 os.mkdir(os.path.join(shotFolder, missingDir))
-            results['missing'] = None
+        else:
+            # if missing C1 folders exist, ask user to create
+            if nuke.ask('The following folders are missing: ' + '\n' + str(results['missing'])[1:-1] + ', create them now?'):
+                for missingDir in results['missing']:
+                    os.mkdir(os.path.join(shotFolder, missingDir))
+                results['missing'] = None
     else:
         results['missing'] = None
 
@@ -103,7 +109,6 @@ def createShotFolder():
     print 'Versions:' + '\n', data['versions']
     return data
 
-#_Scan for missing rener frames in write output directory_______________________
 def Luis_Solver():
     try:
         node = nuke.toNode('_render')
@@ -143,15 +148,6 @@ def Luis_Solver():
                 nuke.render(node, ranges)
     except:
         return nuke.message('Must have a write node named \'_render\' in your network!')
-    # if type(node) == type(nuke.root()):
-    #     return nuke.message('Must have a write node selected!')
-
-            # node.knob('Render').execute()
-
-            # node.knob('frame_range_string').setValue(string)
-
-    # tempNode = nuke.createNode('Write')
-    # nuke.render(tempNode, ranges)
     return nuke.message( 'No Missing frame-ranges found!')
 
 def versionUp(file):
@@ -178,6 +174,7 @@ def versionUp(file):
     nuke.scriptSaveAs(os.path.join(newDir, filename[0] + '_v' + newVersion + '.nk'))
     nuke.message('Current version: ' + newVersion)
     return
+
 def retrieveLatestVersion( directory, showCode ):
     # get latest version on server
     latestVersion = 0
@@ -198,6 +195,7 @@ def retrieveLatestVersion( directory, showCode ):
         print('c1_tools.retrieveLatestVersion(): Error processing something in' + str(directory) + '.')
             # nuke.message(directory + '_' + str(os.path.abspath(folder)))
     return { 'int':latestVersion, 'path':path }
+
 def submitShot( filepath ):
     class Attr():
         def __init__( self, name=None, val=None ):
