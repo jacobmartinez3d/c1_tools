@@ -25,7 +25,7 @@ def findGladiator():
         if os.path.exists(gladiator):
             # nuke.message('yo')
             return gladiator
-    return debugDir
+    return laptopDir
 
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
@@ -266,7 +266,7 @@ def submitShot( filepath ):
                     else:
                         self.shotFolder.path.set( 'local', os.path.abspath(os.path.join(filepath, os.pardir)) )
                 except:
-                    exceptions.append('--> Problem retrieving Shot directories. Now shot found for:\n\'' + str( nukeScriptName ) + '\'\n\n')
+                    exceptions.append('--> Problem retrieving Shot directories. No shot found for:\n\'' + str( nukeScriptName ) + '\'\n\n')
                 #_____versionFolder
                 try:
                     self.versionFolder.path.set( 'local', os.path.abspath(os.path.join(self.filepath, os.pardir)) )
@@ -279,7 +279,7 @@ def submitShot( filepath ):
                     ver = int(os.path.basename(self.versionFolder.path.local).split('_v')[1])
                     self.versionFolder.ver.set( 'local', ver )
                 except:
-                    exceptions.append('--> The folder you\'r working out of doesn\'t have a valid version-number.\n\n' )
+                    exceptions.append('--> The folder you\'re working out of doesn\'t have a valid version-number.\n\n' )
                 #_exceptions____________________________________________________
                 if len(exceptions) > 0:
                     msg = ''

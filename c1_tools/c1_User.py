@@ -69,7 +69,7 @@ class Login( nukescripts.PythonPanel ):
             self.status = 'online'
             self.ok()
         elif knob.name() == 'Set Working Dir':
-            self.inp_workingDir.setValue(nuke.getFilename('Navigate to Local Working Directory...'))
+            self.inp_workingDir.setValue(os.path.abspath(nuke.getFilename('Navigate to Local Working Directory...')))
         return
     def validate( self ):
         self.retrieveLogin()

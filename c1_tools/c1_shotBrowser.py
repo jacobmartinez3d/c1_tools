@@ -59,7 +59,7 @@ class ShotBrowser( QtGui.QWidget ):
         self.layout().addWidget(self.shotTable)
         self.shotTable.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
-        self.retrieveShowData('ODS - Operation Deathstar')
+        self.retrieveShowData('TGR - Tigers of America')
         self.btn_group.buttonClicked.connect( self.handleButtonClicked )
 
     def handleButtonClicked( self, button ):
