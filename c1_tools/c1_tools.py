@@ -27,6 +27,50 @@ def findGladiator():
             return gladiator
     return laptopDir
 
+def ffmpegRender():
+    target = os.path.abspath( nuke.getFilename( 'Navigate to L/R frames...' ) )
+    arr = os.listdir( target )
+    left = None
+    right = None
+    filename = None
+    for thing in arr:
+        while not left or not right:
+            if len(thing.split('.png')) > 1:
+                if len(thing.split('_L.')) > 1:
+                    fragments = thing.split('_L.')
+                    left = os.path.join( target, fragments[0] + '_L.%%04d.png' )
+                    right = os.path.join( target, fragments[0] + '_R.%%04d.png' )
+                    filename = fragments[0]
+                elif len(thing.split('_left.')) > 1:
+                    fragments = thing.split('_left.')
+                    left = os.path.join( target, fragments[0] + '_left.%%04d.png' )
+                    right = os.path.join( target, fragments[0] + '_right.%%04d.png' )
+                    filename = fragments[0]
+                elif len(thing.split('_l.')) > 1:
+                    fragments = thing.split('_l.')
+                    left = os.path.join( target, fragments[0] + '_l.%%04d.png' )
+                    right = os.path.join( target, fragments[0] + '_r.%%04d.png' )
+                    filename = fragments[0]
+                elif len(thing.split('_Left.')) > 1:
+                    fragments = thing.split('_Left.')
+                    left = os.path.join( target, fragments[0] + '_Left.%%04d.png' )
+                    right = os.path.join( target, fragments[0] + '_Right.%%04d.png' )
+                    filename = fragments[0]
+    if left and right:
+        saveBatAs = os.path.join( target, filename + '_OU.bat')
+        output = os.path.join( os.path.join( target, pardir ), filename + '_360_3DV.mp4')
+        fileObj = open( saveBatAs , 'wb')
+        text = [
+            'ffmpeg -i ',
+            left,
+            ' -i ',
+            right,
+            ' -filter_complex "[0:v]scale=iw:ih/2[top]; [1:v]scale=iw:ih/2[bottom]; [top][bottom]vstack[v]" -map "[v]" -c:v libx264 -crf 18 -pix_fmt yuv420p -coder 0 -refs 2 -x264opts b-pyramid=0 -g 29.97 -bf 0 -r 29.97 ',
+            output]
+        fileObj.write( text )
+        fileObj.close()
+        os.system("start "+saveBatAs)
+
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
     #_data packages_____________________________________________________________
