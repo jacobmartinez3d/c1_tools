@@ -57,8 +57,8 @@ def ffmpegRender():
                     right = os.path.join( target, fragments[0] + '_Right.%%04d.png' )
                     filename = fragments[0]
     if left and right:
-        saveBatAs = os.path.join( target, filename + '_OU.bat')
-        output = os.path.join( os.path.join( target, pardir ), filename + '_360_3DV.mp4')
+        saveBatAs = os.path.join( os.path.join( target, os.pardir ), filename + '_OU.bat')
+        output = os.path.join( os.path.join( target, os.pardir ), filename + '_360_3DV.mp4')
         fileObj = open( saveBatAs , 'wb')
         text = [
             'ffmpeg -i ',
@@ -67,7 +67,8 @@ def ffmpegRender():
             right,
             ' -filter_complex "[0:v]scale=iw:ih/2[top]; [1:v]scale=iw:ih/2[bottom]; [top][bottom]vstack[v]" -map "[v]" -c:v libx264 -crf 18 -pix_fmt yuv420p -coder 0 -refs 2 -x264opts b-pyramid=0 -g 29.97 -bf 0 -r 29.97 ',
             output]
-        fileObj.write( text )
+        string = ''.join( text )
+        fileObj.write( string )
         fileObj.close()
         os.system("start "+saveBatAs)
 
