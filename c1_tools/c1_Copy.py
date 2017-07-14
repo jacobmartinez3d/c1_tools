@@ -48,6 +48,8 @@ class Copy():
         fdstObj = open(fdst, 'wb')
         copied = 0
         while True:
+            if self.task.isCancelled():
+                break
             buf = fsrcObj.read(length)
             if not buf:
                 break
@@ -76,12 +78,12 @@ class Copy():
 
             # 4) copy() selected items + Production Stitches
             try:
-                if self.task.isCancelled():
-                    nuke.executeInMainThread( nuke.message, args=( "Aborted!" ) )
                 remote_productionStitches = os.path.join(self.shotFolder.path.remote, '__ProductionStitches')
                 thingsToCopy = os.listdir(remote_productionStitches)
                 local_productionStitches = os.path.join(self.shotFolder.path.local, '__ProductionStitches')
                 for thing in thingsToCopy:
+                    if len(thing.split( 'Pano-LR' )) > 1:
+                        continue
                     if os.path.exists( os.path.join(local_productionStitches, thing) ):
                         continue
                     # shutil.copyfile( os.path.join(remote_productionStitches, thing), os.path.join(local_productionStitches, thing) )
@@ -109,7 +111,6 @@ class Copy():
             else:
                 os.mkdir( os.path.join(newVersionFolder, 'Prerenders') )
             del(self.task)
-            nuke.message(self.versionFolder.path.local)
             return self.versionFolder.path.local
         # nuke.message( self.versionFolder.path.local)
         # threading.Thread( target = downloadThread ).start()

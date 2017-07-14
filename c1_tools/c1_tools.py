@@ -25,10 +25,10 @@ def findGladiator():
         if os.path.exists(gladiator):
             # nuke.message('yo')
             return gladiator
-    return laptopDir
+    return debugDir
 
 def ffmpegRender():
-    target = os.path.abspath( nuke.getFilename( 'Navigate to L/R frames...' ) )
+    target = os.path.abspath( nuke.getFilename( 'Navigate to Prerenders folder, or any directory with L/R frames...' ) )
     arr = os.listdir( target )
     left = None
     right = None
@@ -303,7 +303,7 @@ def submitShot( filepath ):
                         self.showCode = fragment2[0]
                         self.shotName = fragment1[0].split((self.showCode + '_'))[1].split('.')[0]
                 except:
-                    exceptions.append('--> Problem retrieving Show directories. Now show found for:\n' + str(fragment2[0]) + '\n\n' )
+                    exceptions.append('--> Problem retrieving Show directories. No show found for:\n' + str(fragment2[0]) + '\n\n' )
                 #_____shotFolder
                 try:
                     if not self.shotFolder.path.set( 'remote', retrieveServerShotFolder(self.showFolder.path.remote, self.showCode, self.shotName) ):
