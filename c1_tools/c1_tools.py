@@ -164,8 +164,7 @@ def Luis_Solver():
         i = 0
 
         for img in os.listdir(filepath):
-            nuke.message(str(re.findall('\d{0,4}[.](jpe?g|png|gif|bmp)/i', img)[0]).split('.')[0])
-            n = int(str(re.findall('\d{0,4}\.(jpe?g|png|gif|bmp)$/i', img)[0]).split('.')[0])
+            n = int(img.split('.')[1])
             # n = int(re.search(r'\d+', img).group(0))
             arr.append(n)
             if len(arr) > 1:
@@ -193,8 +192,16 @@ def Luis_Solver():
                     ranges.add(fr)
                 nuke.render(node, ranges)
     except:
-        raise
         return nuke.message('Must have a write node named \'_render\' in your network!')
+    # if type(node) == type(nuke.root()):
+    #     return nuke.message('Must have a write node selected!')
+
+            # node.knob('Render').execute()
+
+            # node.knob('frame_range_string').setValue(string)
+
+    # tempNode = nuke.createNode('Write')
+    # nuke.render(tempNode, ranges)
     return nuke.message( 'No Missing frame-ranges found!')
 
 def versionUp(file):
