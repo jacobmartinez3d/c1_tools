@@ -8,14 +8,13 @@ import email.utils as emailUtils
 import sys
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
-sys.path.append('../menu.py')
+sys.path.append('../init.py')
+from init import user as c1_user
 nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
 from postmarker.core import PostmarkClient
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, data ):
-        from menu import user as c1_user
-
         nukescripts.PythonPanel.__init__( self, 'Submit Shot')
         self.gladiator = data.gladiator
         self.dialogueText = data.dialogueText
