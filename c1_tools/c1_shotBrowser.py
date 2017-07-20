@@ -9,13 +9,13 @@ import c1_tools
 from c1_Data import Data
 from c1_Copy import Copy
 sys.path.append('../init.py')
-from init import user
 import subprocess
 import shutil
 import threading
 
 class ShotBrowser( QtGui.QWidget ):
     def __init__( self, parent=None ):
+        from menu import user
         self.gladiator = c1_tools.findGladiator()
         self.data = {
             'path': {},

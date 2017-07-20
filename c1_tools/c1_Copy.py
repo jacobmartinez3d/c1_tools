@@ -6,10 +6,10 @@ import threading
 import subprocess
 import c1_tools
 sys.path.append('../init.py')
-from init import user as c1_user
 
 class Copy():
     def __init__( self, src, dst, data, includes=None ):
+        from init import user as c1_user
         self.gladiator = data.gladiator
         self.user = c1_user
         self.filename = data.filename
