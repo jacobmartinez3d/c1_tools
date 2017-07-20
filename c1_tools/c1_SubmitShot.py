@@ -8,8 +8,8 @@ import email.utils as emailUtils
 import sys
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
-sys.path.append('../init.py')
-from init import user as c1_user
+sys.path.append('../menu.py')
+from menu import user as c1_user
 nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
 from postmarker.core import PostmarkClient
 
@@ -70,7 +70,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             myid = emailUtils.make_msgid()
             postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
             postmark.emails.send(
-                From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <jm@conditionone.com>',
+                From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <nuke@conditionone.com>',
                 To='VFX <jm@conditionone.com>',
                 Subject=self.shotName,
                 ReplyTo='jm@conditionone.com',
@@ -79,7 +79,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                     'Message-ID': '<' + self.shotName + '@conditionone.com>',
                     'References': self.shotName + '@conditionone.com'
                     },
-                HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div>Link<a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">Notes' + self.emailMsg.value() + '</div></body></html>'
+                HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
                 )
             return
 
