@@ -106,7 +106,6 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             def copyPrerenders():
                 #_NOTES_________________________________________________________
                 # 1. need to add auto-renaming if auto-versioning is used
-                # 2. add the 360_3DV.mp4 to the copy operation
                 # 3. after aborting, need to delete the files
                 #_______________________________________________________________
                 def copy(src, dst):
@@ -128,6 +127,12 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                     'shotNotes': 'shotNotes.txt'
                     }
                 exceptions = []
+                #_testFunction from internets
+                def copy3(src, dst, iteration=1000):
+                    fsrc = open(src, 'rb').read()
+                    with open(dst, 'wb') as fdst:
+                        fdst.write(fsrc)
+
                 for i, f in enumerate(frames):
                     if task.isCancelled():
                         nuke.executeInMainThread( nuke.message, args=( "Aborted!" ) )
@@ -160,6 +165,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
                                 exceptions.append( msg )
 
                 nuke.executeInMainThread(nuke.message, args=('Shot succsessfully submitted to Gladiator as: ' + self.showCode + '_' + newVersionFolderName + '.\n\nGood work! ;p'))
+                return
             threading.Thread( target = copyPrerenders ).start()
         createNewRemoteVersion( self.shotFolder.path.remote )
         if self.emailBool.value() == True:
