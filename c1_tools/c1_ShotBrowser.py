@@ -9,7 +9,8 @@ import c1_tools
 from c1_Data import Data
 from c1_Copy import Copy
 sys.path.append('../init.py')
-from init import user
+if not nuke.rawArgs[1] == '--studio':
+    from init import user
 import subprocess
 import shutil
 import threading
