@@ -34,28 +34,28 @@ def ffmpegRender():
     right = None
     filename = None
     for thing in arr:
-        while not left or not right:
-            if len(thing.split('.png')) > 1:
-                if len(thing.split('_L.')) > 1:
-                    fragments = thing.split('_L.')
-                    left = os.path.join( target, fragments[0] + '_L.%%04d.png' )
-                    right = os.path.join( target, fragments[0] + '_R.%%04d.png' )
-                    filename = fragments[0]
-                elif len(thing.split('_left.')) > 1:
-                    fragments = thing.split('_left.')
-                    left = os.path.join( target, fragments[0] + '_left.%%04d.png' )
-                    right = os.path.join( target, fragments[0] + '_right.%%04d.png' )
-                    filename = fragments[0]
-                elif len(thing.split('_l.')) > 1:
-                    fragments = thing.split('_l.')
-                    left = os.path.join( target, fragments[0] + '_l.%%04d.png' )
-                    right = os.path.join( target, fragments[0] + '_r.%%04d.png' )
-                    filename = fragments[0]
-                elif len(thing.split('_Left.')) > 1:
-                    fragments = thing.split('_Left.')
-                    left = os.path.join( target, fragments[0] + '_Left.%%04d.png' )
-                    right = os.path.join( target, fragments[0] + '_Right.%%04d.png' )
-                    filename = fragments[0]
+        # while not left or not right:
+        if len(thing.split('.png')) > 1:
+            if len(thing.split('_L.')) > 1:
+                fragments = thing.split('_L.')
+                left = os.path.join( target, fragments[0] + '_L.%%04d.png' )
+                right = os.path.join( target, fragments[0] + '_R.%%04d.png' )
+                filename = fragments[0]
+            elif len(thing.split('_left.')) > 1:
+                fragments = thing.split('_left.')
+                left = os.path.join( target, fragments[0] + '_left.%%04d.png' )
+                right = os.path.join( target, fragments[0] + '_right.%%04d.png' )
+                filename = fragments[0]
+            elif len(thing.split('_l.')) > 1:
+                fragments = thing.split('_l.')
+                left = os.path.join( target, fragments[0] + '_l.%%04d.png' )
+                right = os.path.join( target, fragments[0] + '_r.%%04d.png' )
+                filename = fragments[0]
+            elif len(thing.split('_Left.')) > 1:
+                fragments = thing.split('_Left.')
+                left = os.path.join( target, fragments[0] + '_Left.%%04d.png' )
+                right = os.path.join( target, fragments[0] + '_Right.%%04d.png' )
+                filename = fragments[0]
     if left and right:
         saveBatAs = os.path.join( os.path.join( target, os.pardir ), filename + '_OU.bat')
         output = os.path.join( os.path.join( target, os.pardir ), filename + '_360_3DV.mp4')
@@ -71,6 +71,7 @@ def ffmpegRender():
         fileObj.write( string )
         fileObj.close()
         os.system("start "+saveBatAs)
+    return
 
 def scanDir(inputDir):
     #_flags_____________________________________________________________________
