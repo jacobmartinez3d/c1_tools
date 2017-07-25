@@ -27,6 +27,32 @@ def findGladiator():
             return gladiator
     return debugDir
 
+def writeToRead():
+    selectedNodes = nuke.selectedNodes()
+    writeNodes = []
+    connectNodes = []
+    if selectedNodes:
+        for node in selectedNodes:
+            if node.Class() == 'Write':
+                writeNodes.append(node)
+            else:
+                connectNodes.append(node)
+        if len(writeNodes) > 0:
+            flag = True if len(writeNodes) == len(connectNodes) else False
+            # if multiple write nodes are selected...
+            for i in range(len(writeNodes)):
+                fileLoc = writeNodes[i].knob('file').getValue()
+                n = nuke.nodes.Read(file=fileLoc)
+                if flag == True:
+                    # create @ connectNodes locs
+                    n.setName('from_' + writeNodes[i].name())
+                    n.setXYpos(connectNodes[i].xpos(), connectNodes[i].ypos() - (connectNodes[i].height()/100)*5)
+                    connectNodes[i].setInput(0, n)
+                else:
+                    # create @ write node locs
+                    n.setName('from_' + writeNodes[i].name())
+                    n.setXYpos(writeNodes[i].xpos() + (writeNodes[i].width()/100)*2, writeNodes[i].ypos())
+
 def ffmpegRender():
     target = os.path.abspath( nuke.getFilename( 'Navigate to Prerenders folder, or any directory with L/R frames...' ) )
     arr = os.listdir( target )
