@@ -14,3 +14,5 @@ if not nuke.rawArgs[1] == '--studio':
     nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Scan for Missing Frames', 'c1_tools.Luis_Solver()', icon='missingFrames.png' )
     nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Render OU.mp4 with FFmpeg', 'c1_tools.ffmpegRender()', icon='ffmpeg.png' )
     nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Write --> Read', 'c1_tools.writeToRead()' ).setShortcut('Ctrl+Alt+R')
+    nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Convert Prores to mp4', 'c1_tools.proresToMp4()' )
+    nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Build local shot folder', 'c1_tools.createShotFolder()' )

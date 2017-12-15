@@ -40,6 +40,8 @@ class ShotBrowser( QtGui.QWidget ):
         self.showChoices.addItem('ODT - Operation Downtown')
         self.showChoices.addItem('ODL - Operation Daylight')
         self.showChoices.addItem('BRZ - Brazil')
+        self.showChoices.addItem('SOM - Somalia')
+        self.showChoices.addItem('CWF - Wildfires')
         self.showChoices.activated[str].connect(self.retrieveShowData)
         self.layout().addWidget(self.showChoices)
         #_______________________________________________________________________

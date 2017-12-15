@@ -73,14 +73,14 @@ class submitShotDialogue( nukescripts.PythonPanel ):
             postmark.emails.send(
                 From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <nuke@conditionone.com>',
                 To='VFX <vfx@conditionone.com>',
-                Subject=self.shotName,
+                Subject=self.showCode + '_' + self.shotName,
                 ReplyTo='vfx@conditionone.com',
                 Headers=
                     {
                     'Message-ID': '<' + self.shotName + '@conditionone.com>',
                     'References': self.shotName + '@conditionone.com'
                     },
-                HtmlBody='<html><body><h2>'+ self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
+                HtmlBody='<html><body><h2>'+ self.showCode + '_' + self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
                 )
             return
 

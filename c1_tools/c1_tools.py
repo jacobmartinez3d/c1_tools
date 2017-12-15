@@ -12,7 +12,7 @@ import c1_SubmitShot as submit
 c1_folders = {
     '___CameraRaw': False,
     '__ProductionStitches': False,
-    '_ImageSequences': False,
+    '_vrweb_Assets': False,
     'zFINAL': False
     }
 
@@ -25,7 +25,7 @@ def findGladiator():
         if os.path.exists(gladiator):
             # nuke.message('yo')
             return gladiator
-    return debugDir
+    return gladiator
 
 def writeToRead():
     selectedNodes = nuke.selectedNodes()
@@ -39,10 +39,19 @@ def writeToRead():
                 connectNodes.append(node)
         if len(writeNodes) > 0:
             flag = True if len(writeNodes) == len(connectNodes) else False
+            frameRange = ()
             # if multiple write nodes are selected...
             for i in range(len(writeNodes)):
                 fileLoc = writeNodes[i].knob('file').getValue()
+                filename = os.path.basename(fileLoc).split('.')[0]
+                framesArr = os.listdir(os.path.join(fileLoc, os.pardir))
+                # need to comb out anything that doesnt name-match
+                for i in range(len(framesArr)):
+                    if len(framesArr[i].split(filename)) == 0:
+                        del framesArr[i]
                 n = nuke.nodes.Read(file=fileLoc)
+                n.knob('first').setValue(int(framesArr[0].split('.')[1]))
+                n.knob('last').setValue(int(framesArr[-1].split('.')[1]))
                 if flag == True:
                     # create @ connectNodes locs
                     n.setName('from_' + writeNodes[i].name())
@@ -50,48 +59,81 @@ def writeToRead():
                     connectNodes[i].setInput(0, n)
                 else:
                     # create @ write node locs
+                    print(i)
                     n.setName('from_' + writeNodes[i].name())
                     n.setXYpos(writeNodes[i].xpos() + (writeNodes[i].width()/100)*2, writeNodes[i].ypos())
+    return
+
+def proresToMp4():
+    target = os.path.abspath( nuke.getFilename('Select .mov.') )
+    output = os.path.abspath( nuke.getFilename('Select output file destination.') )
+    text = ['ffmpeg -i ', target, ' -c:v libx264 -crf 20 -pix_fmt yuv420p -coder 0 -refs 2 -x264opts b-pyramid=0 -g 29.97 -bf 0 -r 29.97 ', output + '.mp4']
+    string = ''.join(text)
+    saveBatAs = os.path.splitext(output)[0] + '.bat'
+    fileObj = open( saveBatAs , 'wb')
+    fileObj.write( string )
+    fileObj.close()
+    os.system("start "+saveBatAs)
+    return
+
+import re
 
 def ffmpegRender():
-    target = os.path.abspath( nuke.getFilename( 'Navigate to Prerenders folder, or any directory with L/R frames...' ) )
-    arr = os.listdir( target )
-    left = None
-    right = None
-    filename = None
+    prerenders = os.path.abspath( nuke.getFilename( 'Choose Prerenders folder...' ) )
+    arr = os.listdir( prerenders )
+    inputStream_left = None
+    inputStream_right = None
+    inputStream_main = None
+    shotName = None
+    re_pattern = "^(\w{3}).{1}(.*).{1}v(\d{1,}).{1}(left|right|main|mono)\.(\d{3,})(\.fbx|\.png|\.tiff?|\.dpx)"
+    re_c1_frame = re.compile(re_pattern)
     for thing in arr:
-        # while not left or not right:
-        if len(thing.split('.png')) > 1:
-            if len(thing.split('_L.')) > 1:
-                fragments = thing.split('_L.')
-                left = os.path.join( target, fragments[0] + '_L.%%04d.png' )
-                right = os.path.join( target, fragments[0] + '_R.%%04d.png' )
-                filename = fragments[0]
-            elif len(thing.split('_left.')) > 1:
-                fragments = thing.split('_left.')
-                left = os.path.join( target, fragments[0] + '_left.%%04d.png' )
-                right = os.path.join( target, fragments[0] + '_right.%%04d.png' )
-                filename = fragments[0]
-            elif len(thing.split('_l.')) > 1:
-                fragments = thing.split('_l.')
-                left = os.path.join( target, fragments[0] + '_l.%%04d.png' )
-                right = os.path.join( target, fragments[0] + '_r.%%04d.png' )
-                filename = fragments[0]
-            elif len(thing.split('_Left.')) > 1:
-                fragments = thing.split('_Left.')
-                left = os.path.join( target, fragments[0] + '_Left.%%04d.png' )
-                right = os.path.join( target, fragments[0] + '_Right.%%04d.png' )
-                filename = fragments[0]
-    if left and right:
-        saveBatAs = os.path.join( os.path.join( target, os.pardir ), filename + '_OU.bat')
-        output = os.path.join( os.path.join( target, os.pardir ), filename + '_360_3DV.mp4')
+        #___________________________________________________________________________________________
+        match = re_c1_frame.search(thing)
+        # Results will be:
+        # 0: entire string
+        # 1: showCode
+        # 2: shotName
+        # 3: versionNum
+        # 4: eye (left/right)
+        # 5: frameNum
+        # 6: ext
+        #___________________________________________________________________________________________
+        
+        # check file-extension (\.fbx|\.png|\.tiff?|\.dpx)
+        if match.group(6) and match.group(4):
+            shotName = match.group(1) + '_' + match.group(2) + '_v' + match.group(3)
+            # check if left/right found
+            if match.group(4) == 'left':
+                inputStream_left = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
+            elif match.group(4) == 'right':
+                inputStream_right = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
+            # no 'left'/'right' found so it must be 'main' or 'mono'
+            else:
+                inputStream_main = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
+    if inputStream_left and inputStream_right:
+        saveBatAs = os.path.join( prerenders, os.pardir, shotName + '_OU.bat')
+        output = os.path.join( prerenders, os.pardir, shotName + '_360_3DV.mp4')
         fileObj = open( saveBatAs , 'wb')
         text = [
             'ffmpeg -i ',
-            left,
+            inputStream_left,
             ' -i ',
-            right,
-            ' -filter_complex "[0:v]scale=iw:ih/2[top]; [1:v]scale=iw:ih/2[bottom]; [top][bottom]vstack[v]" -map "[v]" -c:v libx264 -crf 18 -pix_fmt yuv420p -coder 0 -refs 2 -x264opts b-pyramid=0 -g 29.97 -bf 0 -r 29.97 ',
+            inputStream_right,
+            ' -filter_complex "[0:v]scale=iw:ih/2[top]; [1:v]scale=iw:ih/2[bottom]; [top][bottom]vstack[v]" -map "[v]" -c:v libx264 -b:v 20m -minrate 20m -maxrate 20m -bufsize 40m -pix_fmt yuv420p -coder 0 -refs 2 -x264opts b-pyramid=0 -g 29.97 -bf 0 -r 29.97 ',
+            output]
+        string = ''.join( text )
+        fileObj.write( string )
+        fileObj.close()
+        os.system("start "+saveBatAs)
+    elif inputStream_main:
+        saveBatAs = os.path.join( prerenders, os.pardir, shotName + '_OU.bat')
+        output = os.path.join( prerenders, os.pardir, shotName + '_360.mp4')
+        fileObj = open( saveBatAs , 'wb')
+        text = [
+            'ffmpeg -i ',
+            inputStream_main,
+            ' -c:v libx264 -crf 18 -pix_fmt yuv420p -coder 0 -refs 2 -c:v libx264 -b:v 20m -minrate 20m -maxrate 20m -bufsize 40m b-pyramid=0 -g 29.97 -bf 0 -r 29.97 ',
             output]
         string = ''.join( text )
         fileObj.write( string )
@@ -219,6 +261,7 @@ def Luis_Solver():
                     ranges.add(fr)
                 nuke.render(node, ranges)
     except:
+        raise
         return nuke.message('Must have a write node named \'_render\' in your network!')
     # if type(node) == type(nuke.root()):
     #     return nuke.message('Must have a write node selected!')

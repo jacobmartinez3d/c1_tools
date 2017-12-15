@@ -1,13 +1,14 @@
 import hashlib
 import nuke
-import nukescripts
+from nukescripts.panels import PythonPanel
 import fileinput
 import os
 import smtplib
 
-class Login( nukescripts.PythonPanel ):
+
+class Login( PythonPanel ):
     def __init__( self ):
-        nukescripts.PythonPanel.__init__( self, 'C1 Login')
+        PythonPanel.__init__( self, 'C1 Login')
         # self.server = smtplib.SMTP('smtp.gmail.com', 587)
         # self.status = 'offline'
         # self.server.starttls()
@@ -57,7 +58,7 @@ class Login( nukescripts.PythonPanel ):
             print( 'Failed to save login info! ')
         return
     def prompt( self ):
-        nukescripts.PythonPanel.showModal( self )
+        PythonPanel.showModal( self )
         return
     def knobChanged( self, knob ):
         if knob.name() == 'Login':
