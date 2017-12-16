@@ -79,8 +79,13 @@ def proresToMp4():
 import re
 
 def ffmpegRender():
-    prerenders = os.path.abspath( nuke.getFilename( 'Choose Prerenders folder...' ) )
-    arr = os.listdir( prerenders )
+    try:
+        filepath = os.path.dirname(nuke.root().name()) + os.sep + 'Prerenders' + os.sep
+        prerenders = filepath
+        arr = os.listdir( prerenders )
+    except:
+        prerenders = os.path.abspath( nuke.getFilename( 'Navigate to any directory with properly-named frames...' ) )
+        arr = os.listdir( prerenders )
     inputStream_left = None
     inputStream_right = None
     inputStream_main = None

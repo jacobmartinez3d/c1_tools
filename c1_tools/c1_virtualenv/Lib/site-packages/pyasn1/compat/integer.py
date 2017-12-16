@@ -2,16 +2,31 @@
 # This file is part of pyasn1 software.
 #
 # Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
-# License: http://pyasn1.sf.net/license.html
+# License: http://snmplabs.com/pyasn1/license.html
 #
 import sys
-if sys.version_info[0:2] < (3, 2):
-    from binascii import a2b_hex, b2a_hex
-from pyasn1.compat.octets import oct2int, null
 
-if sys.version_info[0:2] < (3, 2):
+try:
+    import platform
+
+    implementation = platform.python_implementation()
+
+except (ImportError, AttributeError):
+    implementation = 'CPython'
+
+from pyasn1.compat.octets import oct2int, null, ensureString
+
+if sys.version_info[0:2] < (3, 2) or implementation != 'CPython':
+    from binascii import a2b_hex, b2a_hex
+
+    if sys.version_info[0] > 2:
+        long = int
+
     def from_bytes(octets, signed=False):
-        value = long(b2a_hex(str(octets)), 16)
+        if not octets:
+            return 0
+
+        value = long(b2a_hex(ensureString(octets)), 16)
 
         if signed and oct2int(octets[0]) & 0x80:
             return value - (1 << len(octets) * 8)
@@ -93,4 +108,3 @@ else:
 
     def bitLength(number):
         return int(number).bit_length()
-

@@ -4,7 +4,12 @@ from nukescripts.panels import PythonPanel
 import fileinput
 import os
 import smtplib
-
+import sys
+# sys.path.append('../init.py')
+nuke.pluginAddPath( 'C:\Python27\Lib\site-packages' )
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 
 class Login( PythonPanel ):
     def __init__( self ):
@@ -32,7 +37,18 @@ class Login( PythonPanel ):
         self.addKnob( self.cancelButton )
         #_retrieve previous login from login.txt
         self.retrieveLogin()
+
+        #_Firebase__________________________________________________________________________________
+        cred = credentials.Certificate(os.path.dirname(os.path.abspath(__file__)) + os.sep + "c1-online-shotbrowser-firebase-adminsdk-48kzg-1b7eb04519.json")
+        opts = {'databaseURL':'https://c1-online-shotbrowser.firebaseio.com'}
+        try:
+            app = firebase_admin.initialize_app(cred, opts, 'NUKE')           
+        except:
+            app = firebase_admin.get_app('NUKE')
+        ref = db.reference('/', app)
+        # print(ref.get())
         return
+
     #_Retrieve login.txt data
     def retrieveLogin( self ):
         if os.path.exists(os.path.join(self.scriptDir['c1_tools'], 'login.txt')):

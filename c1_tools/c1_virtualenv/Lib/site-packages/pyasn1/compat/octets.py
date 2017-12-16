@@ -2,7 +2,7 @@
 # This file is part of pyasn1 software.
 #
 # Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
-# License: http://pyasn1.sf.net/license.html
+# License: http://snmplabs.com/pyasn1/license.html
 #
 from sys import version_info
 
@@ -12,6 +12,7 @@ if version_info[0] <= 2:
     ints2octs = lambda s: ''.join([int2oct(x) for x in s])
     null = ''
     oct2int = ord
+    # TODO: refactor to return a sequence of ints
     # noinspection PyPep8
     octs2ints = lambda s: [oct2int(x) for x in s]
     # noinspection PyPep8
@@ -22,6 +23,8 @@ if version_info[0] <= 2:
     isOctetsType = lambda s: isinstance(s, str)
     # noinspection PyPep8
     isStringType = lambda s: isinstance(s, (str, unicode))
+    # noinspection PyPep8
+    ensureString = str
 else:
     ints2octs = bytes
     # noinspection PyPep8
@@ -39,3 +42,5 @@ else:
     isOctetsType = lambda s: isinstance(s, bytes)
     # noinspection PyPep8
     isStringType = lambda s: isinstance(s, str)
+    # noinspection PyPep8
+    ensureString = bytes
