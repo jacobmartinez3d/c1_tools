@@ -110,12 +110,12 @@ def ffmpegRender():
             shotName = match.group(1) + '_' + match.group(2) + '_v' + match.group(3)
             # check if left/right found
             if match.group(4) == 'left':
-                inputStream_left = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
+                inputStream_left = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d' + match.group(6))
             elif match.group(4) == 'right':
-                inputStream_right = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
+                inputStream_right = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d' + match.group(6))
             # no 'left'/'right' found so it must be 'main' or 'mono'
             else:
-                inputStream_main = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
+                inputStream_main = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d' + match.group(6))
     if inputStream_left and inputStream_right:
         saveBatAs = os.path.join( prerenders, os.pardir, shotName + '_OU.bat')
         output = os.path.join( prerenders, os.pardir, shotName + '_360_3DV.mp4')
