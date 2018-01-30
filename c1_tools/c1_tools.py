@@ -76,9 +76,38 @@ def proresToMp4():
     os.system("start "+saveBatAs)
     return
 
-import re
+def titles_qc():
+    re_framePattern = re.compile(".{1,}(left|right)\.\d{1,}\.(fbx|png|tiff?|dpx)")
+    re_folderPattern = re.compile('(^\d{1,})_')
+    titles_directory = os.path.abspath( nuke.getFilename( 'Navigate to any directory with properly-named frames...' ) )
+    titlesFolder_arr = []
+    for thing in os.listdir(titles_directory):
+        validated_folder = re_folderPattern.match(thing)
+        if validated_folder:
+            titlesFolder_arr.append(os.path.join(titles_directory, validated_folder.string))
+    
+    if len(titlesFolder_arr) > 0:
+        for folder in titlesFolder_arr:
+            try:
+                if os.path.isdir(os.path.join(folder, 'mono')):
+                    print(os.path.join(os.path.basename(folder), 'mono'), "MONO")
+                    continue
+                if os.path.isdir(os.path.join(folder, 'left')):
+                    print(os.path.join(os.path.basename(folder), 'left'), "OK")
+                else:
+                    print(os.path.join(os.path.basename(folder), 'left'), "Missing")
+                if os.path.isdir(os.path.join(folder, 'right')):
+                    print(os.path.join(os.path.basename(folder), 'right'), "OK")
+                else:
+                    print(os.path.join(os.path.basename(folder), 'right'), "Missing")                               
+            except:             
+                nuke.message(os.path.basename(folder) + " is missing 'left', and/or 'right' subdirectories")
 
-def ffmpegRender():
+    # Next steps:
+    # -create a concat.txt list and save to titles dir
+    # -need to handle missing folders and misnamed frames before continuing, possibly giving user option to skip those folders
+
+def ffmpegRender(titles=False):
     try:
         filepath = os.path.dirname(nuke.root().name()) + os.sep + 'Prerenders' + os.sep
         prerenders = filepath
@@ -104,18 +133,17 @@ def ffmpegRender():
         # 5: frameNum
         # 6: ext
         #___________________________________________________________________________________________
-        
         # check file-extension (\.fbx|\.png|\.tiff?|\.dpx)
         if match.group(6) and match.group(4):
             shotName = match.group(1) + '_' + match.group(2) + '_v' + match.group(3)
             # check if left/right found
             if match.group(4) == 'left':
-                inputStream_left = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d' + match.group(6))
+                inputStream_left = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
             elif match.group(4) == 'right':
-                inputStream_right = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d' + match.group(6))
+                inputStream_right = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
             # no 'left'/'right' found so it must be 'main' or 'mono'
             else:
-                inputStream_main = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d' + match.group(6))
+                inputStream_main = os.path.join( prerenders, shotName + '_' + match.group(4) + '.%%04d.png' )
     if inputStream_left and inputStream_right:
         saveBatAs = os.path.join( prerenders, os.pardir, shotName + '_OU.bat')
         output = os.path.join( prerenders, os.pardir, shotName + '_360_3DV.mp4')
