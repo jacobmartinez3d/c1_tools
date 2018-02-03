@@ -113,10 +113,13 @@ def titles_qc():
             for folderObject in data:
                 result += str(folderObject) + "\n"
                 print(str(folderObject))
-        elif type == 'fileList':
-            for file in data:
+        # elif type == 'fileList':
+            # for file in data:
                 
         return result
+        
+    # def writeFileList(data):
+        
         
     #_PRECHECKS_________________________________________________________________________________________________________
     titleName = ".{1,}"
