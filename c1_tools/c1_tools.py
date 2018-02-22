@@ -1,6 +1,9 @@
 import nuke
 import nukescripts
-from PySide import QtGui
+try:
+    import PySide.QtGui as QtGui
+except:
+    import PySide2.QtGui as QtGui
 import os
 import re
 from string import ascii_lowercase

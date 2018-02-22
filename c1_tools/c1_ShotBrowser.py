@@ -1,5 +1,11 @@
-import PySide.QtCore as QtCore
-import PySide.QtGui as QtGui
+try:
+    import PySide.QtGui as QtGui
+except:
+    import PySide2.QtGui as QtGui
+try:
+    import PySide.QtCore as QtCore
+except:
+    import PySide2.QtCore as QtCore
 import sys
 from nukescripts import panels
 import nuke
@@ -9,8 +15,7 @@ import c1_tools
 from c1_Data import Data
 from c1_Copy import Copy
 sys.path.append('../init.py')
-if not nuke.rawArgs[1] == '--studio':
-    from init import user
+from init import user
 import subprocess
 import shutil
 import threading
