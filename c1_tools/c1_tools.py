@@ -80,31 +80,112 @@ def proresToMp4():
     return
 
 def titles_qc():
-    re_framePattern = re.compile(".{1,}(left|right)\.\d{1,}\.(fbx|png|tiff?|dpx)")
+    def validateFrames(type):
+        missing = {}
+        frameNum = None
+        arr = []                   
+        i = 0
+        # validate 'mono/' directory frames...
+        for thing in sorted(os.listdir(os.path.join(titlesFolder_dct[folder], type))):
+            #print("attempting to match: " + thing)           
+            validated_frame = re_framePattern.match(thing)
+            
+            if validated_frame:
+                titleName = os.path.basename(titlesFolder_dct[folder]) + "_" + validated_frame.group(1)
+                print("'" + validated_frame.string + "\' successfully validated!")
+                n = int(validated_frame.group(2))
+                arr.append(n)
+                if len(arr) > 1:
+                    
+                    difference = arr[i] - arr[i-1]
+                    if difference > 1:                                  
+                        for n in range(difference):
+                            if titleName in missing:
+                                missing[titleName].append(arr[i-1]+n)
+                            else:
+                                missing[titleName] = [(arr[i-1]+n)]   
+                i+=1
+            else:
+                print("'" + thing + "\' is not named correctly!")
+        #results = {"missingFrames": missing}
+        return missing
+
+    def writeSummary(type, data):
+        result = ""
+        if type == 'missingFrames':
+            for folderObject in data:
+                result += str(folderObject) + "\n"
+                print(str(folderObject))
+        # elif type == 'fileList':
+            # for file in data:
+                
+        return result
+        
+    # def writeFileList(data):
+        
+        
+    #_PRECHECKS_________________________________________________________________________________________________________
+    titleName = ".{1,}"
+    re_framePattern = re.compile(titleName + "_(?i)(left|l|right|r|mono|m)\.(\d{1,})\.(fbx|png|tiff?|dpx)")
+    # group 1: left|right|mono
+    # group 2: frame number
+    # group 3: file ext
     re_folderPattern = re.compile('(^\d{1,})_')
+    # group 1: folder number
     titles_directory = os.path.abspath( nuke.getFilename( 'Navigate to any directory with properly-named frames...' ) )
-    titlesFolder_arr = []
+    titlesFolder_dct = {}
+    # validate 'Titles' folder...
     for thing in os.listdir(titles_directory):
         validated_folder = re_folderPattern.match(thing)
         if validated_folder:
-            titlesFolder_arr.append(os.path.join(titles_directory, validated_folder.string))
+            titlesFolder_dct[int(validated_folder.group(1))] = os.path.join(titles_directory, validated_folder.string)
+            print("'" + validated_folder.string + "\' validated!")
+    titlesFolder_dct = dict(sorted(titlesFolder_dct.items()))
     
-    if len(titlesFolder_arr) > 0:
-        for folder in titlesFolder_arr:
+    if len(titlesFolder_dct) > 0:
+        summary = ""
+        fileList = ""
+    #___________________________________________________________________________________________________________________
+        missingFrames = []
+        for folder in titlesFolder_dct:
             try:
-                if os.path.isdir(os.path.join(folder, 'mono')):
-                    print(os.path.join(os.path.basename(folder), 'mono'), "MONO")
+                if os.path.isdir(os.path.join(titlesFolder_dct[folder], 'mono')):
+                    results = validateFrames('mono')
+                    if results:
+                        missingFrames.append(results)                                   
+                    summary += ('\n' + os.path.basename(titlesFolder_dct[folder]) + " MONO: FOUND.")
+                    fileList = "file '"
                     continue
-                if os.path.isdir(os.path.join(folder, 'left')):
-                    print(os.path.join(os.path.basename(folder), 'left'), "OK")
+                if os.path.isdir(os.path.join(titlesFolder_dct[folder], 'left')):
+                    results = validateFrames('left')
+                    if results:
+                        missingFrames.append(results)
+                    summary += ('\n' + os.path.basename(titlesFolder_dct[folder]) + " left: FOUND.")
                 else:
-                    print(os.path.join(os.path.basename(folder), 'left'), "Missing")
-                if os.path.isdir(os.path.join(folder, 'right')):
-                    print(os.path.join(os.path.basename(folder), 'right'), "OK")
+                    summary += ('\n' + os.path.basename(titlesFolder_dct[folder]) + " left: MISSING")
+                if os.path.isdir(os.path.join(titlesFolder_dct[folder], 'right')):
+                    results = validateFrames('right')
+                    if results:
+                        missingFrames.append(results)
+                    summary += ('\n' + os.path.basename(titlesFolder_dct[folder]) + " right: FOUND.")
                 else:
-                    print(os.path.join(os.path.basename(folder), 'right'), "Missing")                               
-            except:             
-                nuke.message(os.path.basename(folder) + " is missing 'left', and/or 'right' subdirectories")
+                    summary += ('\n' + os.path.basename(titlesFolder_dct[folder]) + " right: MISSING")                               
+            except:
+                raise             
+                nuke.message(os.path.basename(titlesFolder_dct[folder]) + " is missing 'left' and 'right', or 'mono' subdirectories!")
+
+        
+        
+        print(missingFrames)
+        concatList = open(os.path.join(titles_directory, 'concatList.txt'), 'w')
+        concatList.write(summary + "\n")
+        concatList.write(writeSummary('missingFrames', missingFrames))
+        # Now I need the actual concat code...        
+
+        concatList.close()
+        # print(os.path.join(titles_directory, 'concatList.txt'))
+        # print("Missing frames detected! @: " + str(missing))
+        #print(summary)
 
     # Next steps:
     # -create a concat.txt list and save to titles dir
