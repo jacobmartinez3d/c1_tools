@@ -1,11 +1,13 @@
 try:
-    import PySide.QtGui as QtGui
-except:
-    import PySide2.QtGui as QtGui
-try:
+    # < Nuke 11
     import PySide.QtCore as QtCore
+    import PySide.QtGui as QtGui
+    import PySide.QtGui as QtGuiWidgets
 except:
+    # >= Nuke 11
     import PySide2.QtCore as QtCore
+    import PySide2.QtGui as QtGui
+    import PySide2.QtWidgets as QtGuiWidgets
 import sys
 from nukescripts import panels
 import nuke
@@ -20,7 +22,7 @@ import subprocess
 import shutil
 import threading
 
-class ShotBrowser( QtGui.QWidget ):
+class ShotBrowser( QtGuiWidgets.QWidget ):
     def __init__( self, parent=None ):
         self.gladiator = c1_tools.findGladiator()
         self.data = {
@@ -34,11 +36,11 @@ class ShotBrowser( QtGui.QWidget ):
             'files': []
             }
         self.buttonsArr = {}
-        QtGui.QWidget.__init__(self, parent)
-        self.btn_group = QtGui.QButtonGroup( self )
-        self.setLayout(QtGui.QVBoxLayout())
+        QtGuiWidgets.QWidget.__init__(self, parent)
+        self.btn_group = QtGuiWidgets.QButtonGroup( self )
+        self.setLayout(QtGuiWidgets.QVBoxLayout())
         #_Choose show___________________________________________________________
-        self.showChoices = QtGui.QComboBox(self)
+        self.showChoices = QtGuiWidgets.QComboBox(self)
         self.showChoices.addItem('TGR - Tigers of America')
         self.showChoices.addItem('OMF - Operation Mayflower')
         self.showChoices.addItem('ODS - Operation Deathstar')
@@ -51,22 +53,22 @@ class ShotBrowser( QtGui.QWidget ):
         self.layout().addWidget(self.showChoices)
         #_______________________________________________________________________
         #_Download button_
-        # self.btn_download = QtGui.QPushButton('Download Shot')
+        # self.btn_download = QtGuiWidgets.QPushButton('Download Shot')
         #_Shot Table____________________________________________________________
-        self.shotTable          = QtGui.QTableWidget()
+        self.shotTable          = QtGuiWidgets.QTableWidget()
         self.shotTable.header   = ['Shot', 'Version', 'Download']
         self.shotTable.size     = [ 375, 375, 375 ]
         self.shotTable.setColumnCount(len(self.shotTable.header))
         self.shotTable.setHorizontalHeaderLabels(self.shotTable.header)
-        self.shotTable.setSelectionMode(QtGui.QTableView.ExtendedSelection)
-        self.shotTable.setSelectionBehavior(QtGui.QTableView.SelectRows)
+        self.shotTable.setSelectionMode(QtGuiWidgets.QTableView.ExtendedSelection)
+        self.shotTable.setSelectionBehavior(QtGuiWidgets.QTableView.SelectRows)
         self.shotTable.setSortingEnabled(1)
         self.shotTable.sortByColumn(1, QtCore.Qt.DescendingOrder)
         self.shotTable.setAlternatingRowColors(True)
         self.shotTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.layout().addWidget(self.shotTable)
-        self.shotTable.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
-        self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
+        self.shotTable.setSizePolicy(QtGuiWidgets.QSizePolicy(QtGuiWidgets.QSizePolicy.Expanding, QtGuiWidgets.QSizePolicy.Expanding))
+        self.setSizePolicy(QtGuiWidgets.QSizePolicy(QtGuiWidgets.QSizePolicy.Expanding, QtGuiWidgets.QSizePolicy.Expanding))
         self.retrieveShowData('TGR - Tigers of America')
         self.btn_group.buttonClicked.connect( self.handleButtonClicked )
 
@@ -125,11 +127,11 @@ class ShotBrowser( QtGui.QWidget ):
                 # nuke.message(str(self.data['version'][i]))
                 self.shotTable.insertRow(i)
                 # write shotName...
-                self.shotTable.setItem(i, 0, QtGui.QTableWidgetItem(self.data['nameParts'][i][1]))
+                self.shotTable.setItem(i, 0, QtGuiWidgets.QTableWidgetItem(self.data['nameParts'][i][1]))
                 # write version... (breaks populate() for some reason...)
-                # self.shotTable.setItem(i, 1, QtGui.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
+                # self.shotTable.setItem(i, 1, QtGuiWidgets.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
                 # button
-                self.btn_group.addButton( QtGui.QPushButton(data['nameParts'][i][1]), i )
+                self.btn_group.addButton( QtGuiWidgets.QPushButton(data['nameParts'][i][1]), i )
                 self.shotTable.setCellWidget( i, 2, self.btn_group.button(i) )
             return
         populate(self.data)

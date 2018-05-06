@@ -25,10 +25,10 @@ def findGladiator():
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
     for c in ascii_lowercase:
         gladiator = c + ':' + os.sep + 'Departments' + os.sep + '_Post' + os.sep + '__Projects' + os.sep
-        if os.path.exists(gladiator):
-            # nuke.message('yo')
-            return gladiator
-    return gladiator
+        # if os.path.exists(gladiator):
+            # nuke.message('Gladiator found at: ' + gladiator)
+            # return gladiator
+    return laptopDir
 
 def writeToRead():
     selectedNodes = nuke.selectedNodes()

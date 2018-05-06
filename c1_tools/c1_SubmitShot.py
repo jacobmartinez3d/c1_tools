@@ -10,10 +10,10 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 sys.path.append('../init.py')
 # if not nuke.rawArgs[1] == '--studio':
-#     from init import user as c1_user
+from init import user as c1_user
 nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
 nuke.pluginAddPath('C:\Users\Jacob\.nuke\c1_virtualenv\Lib\site-packages')
-from postmarker.core import PostmarkClient
+#from postmarker.core import PostmarkClient
 
 class submitShotDialogue( nukescripts.PythonPanel ):
     def __init__( self, data ):
@@ -70,19 +70,19 @@ class submitShotDialogue( nukescripts.PythonPanel ):
         #_______________________________________________________________________
         def email():
             myid = emailUtils.make_msgid()
-            postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
-            postmark.emails.send(
-                From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <nuke@conditionone.com>',
-                To='VFX <vfx@conditionone.com>',
-                Subject=self.showCode + '_' + self.shotName,
-                ReplyTo='vfx@conditionone.com',
-                Headers=
-                    {
-                    'Message-ID': '<' + self.shotName + '@conditionone.com>',
-                    'References': self.shotName + '@conditionone.com'
-                    },
-                HtmlBody='<html><body><h2>'+ self.showCode + '_' + self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
-                )
+            # postmark = PostmarkClient(server_token='722f2aa2-9271-4578-9548-7e6b006706bd')
+            # postmark.emails.send(
+            #     From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <nuke@conditionone.com>',
+            #     To='VFX <vfx@conditionone.com>',
+            #     Subject=self.showCode + '_' + self.shotName,
+            #     ReplyTo='vfx@conditionone.com',
+            #     Headers=
+            #         {
+            #         'Message-ID': '<' + self.shotName + '@conditionone.com>',
+            #         'References': self.shotName + '@conditionone.com'
+            #         },
+            #     HtmlBody='<html><body><h2>'+ self.showCode + '_' + self.shotName + '_v' + str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+ self.shotFolder.path.remote + '">' + self.shotFolder.path.remote + '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' + self.emailMsg.value() + '</div></body></html>'
+            #     )
             return
 
         def createNewRemoteVersion( serverShotFolder ):
@@ -106,8 +106,7 @@ class submitShotDialogue( nukescripts.PythonPanel ):
 
             def copyPrerenders():
                 #_NOTES_________________________________________________________
-                # 1. need to add auto-renaming if auto-versioning is used
-                # 3. after aborting, need to delete the files
+                # 1. after aborting, need to delete the files
                 #_______________________________________________________________
                 def copy(src, dst):
                     fsrc = open(src, 'rb').read()
