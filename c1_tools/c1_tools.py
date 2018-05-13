@@ -420,12 +420,11 @@ def retrieveLatestVersion( directory, showCode ):
     # get latest version on server
     latestVersion = 0
     path = None
-    # nuke.message(directory)
     try:
         for folder in os.listdir(directory):
-            # nuke.message(folder)
             if os.path.isdir(os.path.join(directory, folder)):
-                pieces = folder.split('_v')
+                # pieces = os.path.basename(folder).split('_v')
+                pieces = os.path.basename(folder).split('_v')
                 # one last small validation..
                 if pieces[0].split('_')[0] == showCode and int(pieces[1]) > 0:
                     versionNum = int(pieces[1])
@@ -434,8 +433,10 @@ def retrieveLatestVersion( directory, showCode ):
                         path = os.path.join(directory, folder )
     except:
         print('c1_tools.retrieveLatestVersion(): Error processing something in' + str(directory) + '.')
-            # nuke.message(directory + '_' + str(os.path.abspath(folder)))
-    return { 'int':latestVersion, 'path':path }
+        # nuke.message('c1_tools.retrieveLatestVersion(): Error processing something in' + str(directory) + '.')
+        # nuke.message(directory + '_' + str(os.path.abspath(folder)))
+    data = { 'int':latestVersion, 'path':path }
+    return data
 
 def submitShot( filepath ):
     class Attr():

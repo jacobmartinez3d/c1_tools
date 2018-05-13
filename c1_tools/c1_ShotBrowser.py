@@ -56,7 +56,7 @@ class ShotBrowser( QtGuiWidgets.QWidget ):
         # self.btn_download = QtGuiWidgets.QPushButton('Download Shot')
         #_Shot Table____________________________________________________________
         self.shotTable          = QtGuiWidgets.QTableWidget()
-        self.shotTable.header   = ['Shot', 'Version', 'Download']
+        self.shotTable.header   = ['Download', 'Latest Version']
         self.shotTable.size     = [ 375, 375, 375 ]
         self.shotTable.setColumnCount(len(self.shotTable.header))
         self.shotTable.setHorizontalHeaderLabels(self.shotTable.header)
@@ -109,14 +109,15 @@ class ShotBrowser( QtGuiWidgets.QWidget ):
                 for shotFolder in os.listdir(fullPath):
                     nameParts = os.path.basename(shotFolder).split('_', 1)
                     path = os.path.join(fullPath, shotFolder)
-                    version = c1_tools.retrieveLatestVersion(path, showCode)['int']
+                    version = c1_tools.retrieveLatestVersion(path, showCode)
+                    version = version['int']
                     # compile self.data
                     if nameParts[0] == showCode:
                         self.data['nameParts'].append(nameParts)
                         # set shotName as key, shotFolder path as value
                         versionFolderName = nameParts[0] + '_' + nameParts[1] + '_v' + str(version).zfill(3)
                         self.data['path'][nameParts[1]] = os.path.join(path, versionFolderName)
-                        if version < 1:
+                        if int(version) < 1:
                             self.data['version'].append('No Submissions')
                         else:
                             self.data['version'].append(version)
@@ -126,13 +127,13 @@ class ShotBrowser( QtGuiWidgets.QWidget ):
             for i in range(0, len(data['nameParts'])):
                 # nuke.message(str(self.data['version'][i]))
                 self.shotTable.insertRow(i)
-                # write shotName...
-                self.shotTable.setItem(i, 0, QtGuiWidgets.QTableWidgetItem(self.data['nameParts'][i][1]))
-                # write version... (breaks populate() for some reason...)
-                # self.shotTable.setItem(i, 1, QtGuiWidgets.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
                 # button
                 self.btn_group.addButton( QtGuiWidgets.QPushButton(data['nameParts'][i][1]), i )
-                self.shotTable.setCellWidget( i, 2, self.btn_group.button(i) )
+                self.shotTable.setCellWidget( i, 0, self.btn_group.button(i) )
+                # write shotName...
+                # self.shotTable.setItem(i, 0, QtGuiWidgets.QTableWidgetItem(self.data['nameParts'][i][1]))
+                # write version... (breaks populate() for some reason...)
+                self.shotTable.setItem(i, 1, QtGuiWidgets.QTableWidgetItem(str(self.data['version'][i]).zfill(3)))
             return
         populate(self.data)
     def reset( self ):
