@@ -1,5 +1,6 @@
 import c1_tools.c1_tools as c1_tools
 import c1_tools.c1_ShotBrowser as c1_shotBrowser
+import c1_tools.c1_Preferences as c1_Preferences
 import nuke
 import nukescripts
 try:
@@ -9,6 +10,9 @@ except:
 
 def open_shotBrowser():
     nukescripts.panels.registerWidgetAsPanel('c1_shotBrowser.ShotBrowser', 'C1 Shot Browser', 'c1_shotBrowser', True).addToPane(nuke.getPaneFor('Properties.1'))
+def open_Preferences():
+	preferences = c1_Preferences.Preferences()
+	preferences.prompt()
 # _menu____________________________________________________________________
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Shot Browser', 'open_shotBrowser()', icon='sb.png' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Submit Shot', 'c1_tools.submitShot(nuke.root().name())', icon='submitShot.png' )
@@ -19,3 +23,4 @@ nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Render Titles QC-Sequence (FFmpeg)', '
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Write --> Read', 'c1_tools.writeToRead()' ).setShortcut('Ctrl+Alt+R')
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Convert Prores to mp4', 'c1_tools.proresToMp4()' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Build local shot folder', 'c1_tools.createShotFolder()' )
+nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Preferences', 'open_Preferences()' )
