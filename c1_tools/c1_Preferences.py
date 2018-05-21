@@ -33,7 +33,10 @@ class Preferences( PythonPanel ):
         self.setProjectButton = nuke.File_Knob('projectDir','Project Location')
         self.inp_projectLocation = nuke.String_Knob( 'projectDir', '<b><font size="3" color="red">Remote Project Directory</font></b>')
         self.inp_projectName = nuke.String_Knob( 'projectName', 'Project Name' )
+        self.inp_projectNum = nuke.Int_Knob( 'projectNum')
+        # self.inp_projectNum.clearFlag( nuke.STARTLINE )
         self.inp_projectCode = nuke.String_Knob( 'projectCode', 'Project Code' )
+        self.inp_projectCode.clearFlag( nuke.STARTLINE )
         
         # add knobs
         self.addKnob( self.inp_localDir )
@@ -45,6 +48,7 @@ class Preferences( PythonPanel ):
         self.addKnob( self.projectMapTab )
         self.addKnob( self.setProjectButton )
         self.addKnob( self.inp_projectName )
+        self.addKnob( self.inp_projectNum )
         self.addKnob( self.inp_projectCode )
         # retrieve previous login from login.txt
         self.retrieveLogin()
