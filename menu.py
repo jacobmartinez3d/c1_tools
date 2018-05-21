@@ -13,6 +13,9 @@ def open_shotBrowser():
 def open_Preferences():
 	preferences = c1_Preferences.Preferences()
 	preferences.prompt()
+def c1_timeline():
+	c1_tools.c1_timeline('C:\Users\Jacob\.nuke\OpenTimelineIO-master\examples\BRZ.xml')
+
 # _menu____________________________________________________________________
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Shot Browser', 'open_shotBrowser()', icon='sb.png' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Submit Shot', 'c1_tools.submitShot(nuke.root().name())', icon='submitShot.png' )
@@ -24,3 +27,4 @@ nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Write --> Read', 'c1_tools.writeToRead
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Convert Prores to mp4', 'c1_tools.proresToMp4()' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/Build local shot folder', 'c1_tools.createShotFolder()' )
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Preferences', 'open_Preferences()' )
+nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Timeline', 'c1_timeline()' )
