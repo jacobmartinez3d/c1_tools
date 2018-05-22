@@ -11,11 +11,8 @@ import shutil
 import threading
 import smtplib
 import c1_SubmitShot as submit
-nuke.pluginAddPath('C:\Users\Jacob\.nuke\OpenTimelineIO-master')
+nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
 import opentimelineio as otio
-
-for clip in timeline.each_clip():
-  print clip.media_reference
 
 c1_folders = {
     '___CameraRaw': False,
@@ -586,4 +583,4 @@ def submitShot( filepath ):
 def c1_timeline( filepath ):
     timeline = otio.adapters.read_from_file(filepath)
     for clip in timeline.each_clip():
-    print clip.media_reference
+        print clip.media_reference

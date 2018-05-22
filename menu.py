@@ -14,7 +14,7 @@ def open_Preferences():
 	preferences = c1_Preferences.Preferences()
 	preferences.prompt()
 def c1_timeline():
-	c1_tools.c1_timeline('C:\Users\Jacob\.nuke\OpenTimelineIO-master\examples\BRZ.xml')
+	c1_tools.c1_timeline('C:/Users/Jacob/.nuke/Chimp_Final Cut_SWAPS_6k_1.xml')
 
 # _menu____________________________________________________________________
 nuke.menu( 'Nuke' ).addCommand( 'C1 Tools/C1 Shot Browser', 'open_shotBrowser()', icon='sb.png' )

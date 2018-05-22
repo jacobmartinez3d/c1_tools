@@ -12,7 +12,6 @@ sys.path.append('../init.py')
 # if not nuke.rawArgs[1] == '--studio':
 from init import user as c1_user
 nuke.pluginAddPath( os.path.dirname(os.path.abspath(__file__)) + os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages' )
-nuke.pluginAddPath('C:\Users\Jacob\.nuke\c1_virtualenv\Lib\site-packages')
 #from postmarker.core import PostmarkClient
 
 class submitShotDialogue( nukescripts.PythonPanel ):
