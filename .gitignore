@@ -3,6 +3,7 @@
 !c1_tools/
 c1_tools/*
 c1_virtualenv/*
+!OTIO/
 !*.py
 !menu.py
 !init.py
