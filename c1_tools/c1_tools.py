@@ -581,6 +581,25 @@ def submitShot( filepath ):
     return
 
 def c1_timeline( filepath ):
-    timeline = otio.adapters.read_from_file(filepath)
-    for clip in timeline.each_clip():
-        print clip.media_reference
+    try:
+        timeline_name = os.path.basename(filepath).split(".")[0]
+        operation = os.path.basename(filepath).split(".")[1]
+        
+    except:
+        nuke.message("Filetype not recognized.")
+        return False
+    save_to = os.path.dirname(filepath) + "/" + timeline_name
+    try:
+        timeline = otio.adapters.read_from_file(filepath)
+    except:
+        nuke.message("No Adapter for this filetype.\nSee available Adapters here:\nhttps://github.com/PixarAnimationStudios/OpenTimelineIO\#adapters")
+    if operation == "xml":
+        save_to += ".otio"
+        otio.adapters.write_to_file(timeline, save_to)
+    elif operation == "otio":
+        save_to += ".xml"
+        otio.adapters.write_to_file(timeline, save_to)
+    nuke.message("Saved to:\n" + save_to)
+
+
+    
