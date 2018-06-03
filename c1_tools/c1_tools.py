@@ -26,11 +26,10 @@ def findGladiator():
     debugDir = 'g' + ':' + os.sep + 'Users' + os.sep + 'Jacob' + os.sep
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
     found = False
-    for c in ascii_lowercase:
-        gladiator = c + ':' + os.sep + 'Departments' + \
-            os.sep + '_Post' + os.sep + '__Projects' + os.sep
-        if os.path.exists(gladiator):
-            nuke.message('Gladiator found at: ' + gladiator)
+    # for c in ascii_lowercase:
+        # gladiator = *HIDDEN*
+        # if os.path.exists(gladiator):
+        #     nuke.message('Gladiator found at: ' + gladiator)
     # swap gladiator definition for debugging on laptop
     return gladiator if found else laptopDir
 
