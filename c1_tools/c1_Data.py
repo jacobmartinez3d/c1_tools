@@ -40,7 +40,6 @@ class Data():
         self.showFolder = Folder()
 
         def validate():
-            #-upload------------------------------------------------------------
             if type == 'upload':
                 nukeScriptName = nuke.toNode('root').name()
                 nukeScriptName = 'Untitled' if nukeScriptName == 'Root' else nukeScriptName
@@ -50,14 +49,14 @@ class Data():
                 fragmentsArr = []
                 self.filename = fragment1[0]
 
-                #_VALIDATE______________________________________________________
+                # validate
                 exceptions = []
                 try:
                     fileversion = int(fragment1[1].split('.')[0])
                     self.fileversion = fileversion
                 except:
                     exceptions.append('--> Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
-                #_____showFolder, showCode, shotName
+                # showFolder, showCode, shotName
                 try:
                     if not self.showFolder.path.set( 'remote', retrieveServerShowFolder( fragment2[0]) ):
                         exceptions.append( '--> No corresponding Show folder found at:\n' + self.gladiator + '\n\n')
@@ -66,7 +65,7 @@ class Data():
                         self.shotName = fragment1[0].split((self.showCode + '_'))[1].split('.')[0]
                 except:
                     exceptions.append('--> Problem retrieving Show directories. Now show found for:\n' + str(fragment2[0]) + '\n\n' )
-                #_____shotFolder
+                # shotFolder
                 try:
                     if not self.shotFolder.path.set( 'remote', retrieveServerShotFolder(self.showFolder.path.remote, self.showCode, self.shotName) ):
                         exceptions.append('--> No corresponding Shot folder found for\n\'' + str( nukeScriptName ) + '\'\n\n')
@@ -74,7 +73,7 @@ class Data():
                         self.shotFolder.path.set( 'local', os.path.abspath(os.path.join(filepath, os.pardir)) )
                 except:
                     exceptions.append('--> Problem retrieving Shot directories. Now shot found for:\n\'' + str( nukeScriptName ) + '\'\n\n')
-                #_____versionFolder
+                # versionFolder
                 try:
                     self.versionFolder.path.set( 'local', os.path.abspath(os.path.join(self.filepath, os.pardir)) )
                     latestVersion = retrieveLatestVersion(self.shotFolder.path.remote, self.showCode)
@@ -87,7 +86,7 @@ class Data():
                     self.versionFolder.ver.set( 'local', ver )
                 except:
                     exceptions.append('--> The folder you\'r working out of doesn\'t have a valid version-number.\n\n' )
-            #-download----------------------------------------------------------
+            # download
             elif type == 'download':
                 fragment1 = os.path.basename(self.filepath).split('_v')
                 fragment2 = fragment1[0].split('_')
@@ -99,7 +98,7 @@ class Data():
                     self.fileversion = fileversion
                 except:
                     exceptions.append('--> Current filename contains no version-number!\n\nCorrect naming:\nshowcode_shotname_vXXX\n\n')
-                #_____showFolder, showCode, shotName
+                # showFolder, showCode, shotName
                 try:
                     if not self.showFolder.path.set( 'remote', retrieveServerShowFolder( fragment2[0]) ):
                         exceptions.append( '--> No corresponding Show folder found at:\n' + self.gladiator + '\n\n')
@@ -108,7 +107,7 @@ class Data():
                         self.shotName = fragment1[0].split((self.showCode + '_'))[1].split('.')[0]
                 except:
                     exceptions.append('--> Problem retrieving Show directories. Now show found for:\n' + str(fragment2[0]) + '\n\n' )
-                #_____shotFolder
+                # shotFolder
                 try:
                     if not self.shotFolder.path.set( 'remote', retrieveServerShotFolder(self.showFolder.path.remote, self.showCode, self.shotName) ):
                         exceptions.append('--> No corresponding Shot folder found for\n\'' + str( nukeScriptName ) + '\'\n\n')
@@ -116,7 +115,7 @@ class Data():
                         self.shotFolder.path.set( 'local', os.path.abspath(os.path.join(filepath, os.pardir)) )
                 except:
                     exceptions.append('--> Problem retrieving Shot directories. Now shot found for:\n\'' + str( nukeScriptName ) + '\'\n\n')
-                #_____versionFolder
+                # versionFolder
                 try:
                     # self.versionFolder.path.set( 'local', os.path.abspath(os.path.join(self.filepath, os.pardir)) )
                     latestVersion = c1_tools.retrieveLatestVersion(self.shotFolder.path.remote, self.showCode)
@@ -132,7 +131,7 @@ class Data():
                 #     exceptions.append('--> The folder you\'r working out of doesn\'t have a valid version-number.\n\n' )
 
 
-            #_exceptions____________________________________________________
+            # exceptions
             if len(exceptions) > 0:
                 msg = ''
                 i = 1

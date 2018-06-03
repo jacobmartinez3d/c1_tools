@@ -1,3 +1,6 @@
+# preferences panel to allow inputting cutom parameters for the structure of a project and its
+# naming conventions.
+# --------------------------------------------------------------------------------------------------
 import hashlib
 import nuke
 from nukescripts.panels import PythonPanel
@@ -31,7 +34,8 @@ class Preferences( PythonPanel ):
         # Project Map Tab
         self.projectMapTab = nuke.Tab_Knob("Project Map")
         self.setProjectButton = nuke.File_Knob('projectDir','Project Location')
-        self.inp_projectLocation = nuke.String_Knob( 'projectDir', '<b><font size="3" color="red">Remote Project Directory</font></b>')
+        self.inp_projectLocation = nuke.String_Knob( 'projectDir',
+            '<b><font size="3" color="red">Remote Project Directory</font></b>')
         self.inp_projectName = nuke.String_Knob( 'projectName', 'Project Name' )
         self.inp_projectNum = nuke.Int_Knob( 'projectNum')
         # self.inp_projectNum.clearFlag( nuke.STARTLINE )
@@ -94,7 +98,9 @@ class Preferences( PythonPanel ):
             self.status = 'online'
             self.ok()
         elif knob.name() == 'Set Working Dir':
-            self.inp_localDir.setValue(os.path.abspath(nuke.getFilename('Navigate to Local Working Directory...')))
+            self.inp_localDir.setValue(os.path.abspath(nuke.getFilename(
+                'Navigate to Local Working Directory...')))
         elif knob.name() == 'Project Location':
-            self.inp_projectLocation.setValue(os.path.abspath(nuke.getFilename('Navigate to Remote \'Root\' Project Directory...')))
+            self.inp_projectLocation.setValue(os.path.abspath(nuke.getFilename(
+                'Navigate to Remote \'Root\' Project Directory...')))
         return

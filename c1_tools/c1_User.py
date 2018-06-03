@@ -1,3 +1,7 @@
+# A login panel which prompts the user for:
+#   - Their initials (used for identification),
+#   - Their local working directory(used for shotBrowser when downloading shots locally).
+# --------------------------------------------------------------------------------------------------
 import hashlib
 import nuke
 from nukescripts.panels import PythonPanel
@@ -33,24 +37,26 @@ class Login( PythonPanel ):
 
     def validate( self ):
         self.retrieveLogin()
+        # If needed, future validation checks will go here
         return
-    # Retrieve login.txt data
     def retrieveLogin( self ):
+    # if Login.txt already exists, skip prompt and login automatically
         if os.path.exists(os.path.join(self.scriptDir['c1_tools'], 'login.txt')):
             text = open(os.path.join(self.scriptDir['c1_tools'], 'login.txt'), 'r+')
             lines = []
             for line in text:
-                # append each line of the found login.txt                
+                # append each line of login.txt                
                 lines.append( line )
             text.close()
             self.email = lines[0]
             self.workingDir = lines[1]
         else:
+            # if no Login.txt was found, show prompt
             self.prompt()
         print( 'Succsessfully logged in as: ' + self.email )
         return
-    # create login.txt data
     def createLogin( self ):
+        # creates login.txt data
         try:
             text = open(os.path.join(self.scriptDir['c1_tools'], 'login.txt'), 'w')
             text.write( self.inp_email.value() + '\n')
@@ -64,12 +70,15 @@ class Login( PythonPanel ):
         return
     def knobChanged( self, knob ):
         if knob.name() == 'Login':
+            # capture user-inputted values
             self.email = self.inp_email.value()
             self.workingDir = self.inp_workingDir.value()
             # write login.txt
             self.createLogin()
             self.status = 'online'
+            # this is a built-in PythonPanel method for pressing ok button
             self.ok()
         elif knob.name() == 'Set Working Dir':
+            # open Nuke's file navigator
             self.inp_workingDir.setValue(os.path.abspath(nuke.getFilename('Navigate to Local Working Directory...')))
         return
