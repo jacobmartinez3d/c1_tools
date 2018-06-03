@@ -21,10 +21,10 @@ from c1_Data import Data
 from c1_Copy import Copy
 sys.path.append('../init.py')
 from init import user
-import opentimelineio as otio
-otio_timeline = require("E:/local_work/c1_otio/src/OTIO/CMP_testTimeline.json")
+
 
 class ShotBrowser(QtGuiWidgets.QWidget):
+
     def __init__(self, parent=None):
         self.gladiator = c1_tools.findGladiator()
         self.data = {
@@ -69,6 +69,22 @@ class ShotBrowser(QtGuiWidgets.QWidget):
                                                     QtGuiWidgets.QSizePolicy.Expanding))
         self.retrieveShowData('TGR - Tigers of America')
         self.btn_group.buttonClicked.connect(self.handleButtonClicked)
+        return
+
+    def handleButtonClicked(self, button):
+        # for roots, dirs, files in os.walk( self.data['path'][button.text()] ):
+        #     self.things['roots'].append(roots)
+        #     for dir in dirs:
+        #         self.things['dirs'].append(dir)
+        #     for file in files:
+        #         self.things['files'].append(file)
+        # print(str(self.things))
+        # if len(self.things['files']) > 0:
+        #     self.numberOfThings = len(self.things['files'])
+        # else:
+        #     self.numberOfThings = 1
+        # need to un-include files not to be copied
+        # self.download(button.text())
         target = self.data['path'][button.text()]
         data = Data('download', target, self.gladiator)
         request = Copy(target, user.workingDir, data)
@@ -135,7 +151,7 @@ class ShotBrowser(QtGuiWidgets.QWidget):
         return
 
     def download(self, shotName):
-        # NOTES ____________________________________________________________________________________
+        # NOTES _______________________________________________________________
         # need to integrate/share with SubmitShot()
         #_Notes for next version_
         # 1) create localShotFolder

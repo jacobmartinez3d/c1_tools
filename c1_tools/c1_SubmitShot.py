@@ -16,7 +16,10 @@ from init import user as c1_user
 nuke.pluginAddPath(os.path.dirname(os.path.abspath(__file__)) +
                    os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages')
 #from postmarker.core import PostmarkClient
+
+
 class submitShotDialogue(nukescripts.PythonPanel):
+
     def __init__(self, data):
         nukescripts.PythonPanel.__init__(self, 'Submit Shot')
         self.gladiator = data.gladiator
@@ -49,6 +52,7 @@ class submitShotDialogue(nukescripts.PythonPanel):
             "submit", self.shotName + '_v' + str(self.versionFolder.ver.remote + 1).zfill(3))
         self.button2 = nuke.PyScript_Knob(
             "submit", self.shotName + '_v' + str(self.fileversion).zfill(3))
+
     def show(self, button):
         if button == 'button1':
             self.addKnob(self.button1)
@@ -59,37 +63,40 @@ class submitShotDialogue(nukescripts.PythonPanel):
             self.addKnob(self.button2)
             self.addKnob(self.cancelButton)
             nukescripts.PythonPanel.showModal(self)
+
     def knobChanged(self, knob):
         if knob.name() == 'submit':
             self.submitShot()
             self.ok()
         if knob.name() == 'emailBool':
             self.emailMsg.setEnabled(self.emailBool.value())
+
     def submitShot(self):
-        # NOTES ____________________________________________________________________________________
+        # NOTES _______________________________________________________________
         # -currently creates folder on gladiator before user has chance to accept or not
-        #-------------------------------------------------------------------------------------------
+        #----------------------------------------------------------------------
         def email():
             # using "postmarker"
             myid = emailUtils.make_msgid()
             postmark = PostmarkClient(server_token='*HIDDEN*')
             postmark.emails.send(
-                From='[' + self.user.email.split('@')[0] + '] Artist Shot Update <*HIDDEN*>',
+                From='[' + self.user.email.split('@')[0] +
+                '] Artist Shot Update <*HIDDEN*>',
                 To='VFX <*HIDDEN*>',
                 Subject=self.showCode + '_' + self.shotName,
                 ReplyTo='*HIDDEN*',
-                Headers=
-                    {
+                Headers={
                     'Message-ID': '<' + self.shotName + '@conditionone.com>',
                     'References': self.shotName + '@conditionone.com'
-                    },
-                HtmlBody='<html><body><h2>'+ self.showCode + '_' + self.shotName + '_v' +
-                   str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///'+
-                   self.shotFolder.path.remote + '">' + self.shotFolder.path.remote +
-                   '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' +
-                   self.emailMsg.value() + '</div></body></html>'
-                )
+                },
+                HtmlBody='<html><body><h2>' + self.showCode + '_' + self.shotName + '_v' +
+                str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///' +
+                self.shotFolder.path.remote + '">' + self.shotFolder.path.remote +
+                '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' +
+                self.emailMsg.value() + '</div></body></html>'
+            )
             return
+
         def createNewRemoteVersion(serverShotFolder):
             newVersionFolderName = self.shotName + \
                 '_v' + str(self.fileversion).zfill(3)
@@ -114,9 +121,9 @@ class submitShotDialogue(nukescripts.PythonPanel):
             os.mkdir(remotePrerenders)
 
             def copyPrerenders():
-                # NOTES ____________________________________________________________________________
+                # NOTES _______________________________________________________
                 # 1. after aborting, need to delete the files
-                #-----------------------------------------------------------------------------------
+                #--------------------------------------------------------------
                 def copy(src, dst):
                     fsrc = open(src, 'rb').read()
                     with open(dst, 'wb') as fdst:
@@ -157,15 +164,15 @@ class submitShotDialogue(nukescripts.PythonPanel):
                                 self.filename + '_v' + str(self.versionFolder.ver.local).zfill(3) +
                                 '_360_3DV.mp4'))
                             copyTo = os.path.join(os.path.join(self.shotFolder.path.remote,
-                                (self.filename + '_v' + str(self.versionFolder.ver.remote + 1)
-                                    .zfill(3))), (self.filename + '_360_3DV.mp4'))
+                                                               (self.filename + '_v' + str(self.versionFolder.ver.remote + 1)
+                                                                .zfill(3))), (self.filename + '_360_3DV.mp4'))
                             try:
                                 copy(copyFrom, copyTo)
                             except:
                                 msg = "--> No '360_3DV.mp4' found!\n"
                                 exceptions.append(msg)
                 nuke.executeInMainThread(nuke.message, args=(
-                    'Shot succsessfully submitted to Gladiator as: ' +self.showCode + '_' +
+                    'Shot succsessfully submitted to Gladiator as: ' + self.showCode + '_' +
                     newVersionFolderName + '.\n\nGood work! ;p'))
                 return
             threading.Thread(target=copyPrerenders).start()

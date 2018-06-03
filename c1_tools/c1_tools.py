@@ -27,9 +27,9 @@ def findGladiator():
     laptopDir = 'e:' + os.sep + 'C1_LOCAL' + os.sep
     found = False
     # for c in ascii_lowercase:
-        # gladiator = *HIDDEN*
-        # if os.path.exists(gladiator):
-        #     nuke.message('Gladiator found at: ' + gladiator)
+    # gladiator = *HIDDEN*
+    # if os.path.exists(gladiator):
+    #     nuke.message('Gladiator found at: ' + gladiator)
     # swap gladiator definition for debugging on laptop
     return gladiator if found else laptopDir
 
@@ -70,7 +70,8 @@ def writeToRead():
                     print(i)
                     n.setName('from_' + writeNodes[i].name())
                     n.setXYpos(
-                        writeNodes[i].xpos() + (writeNodes[i].width() / 100) * 2,
+                        writeNodes[i].xpos() +
+                        (writeNodes[i].width() / 100) * 2,
                         writeNodes[i].ypos())
     return
 
@@ -130,7 +131,6 @@ def titles_qc():
             else:
                 print("'" + thing + "\' is not named correctly!")
         return missing
-
 
     def writeSummary(type, data):
         # __________________________________________________________________________________________
