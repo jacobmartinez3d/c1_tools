@@ -13,9 +13,6 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 sys.path.append('../init.py')
 from init import user as c1_user
-nuke.pluginAddPath(os.path.dirname(os.path.abspath(__file__)) +
-                   os.sep + 'c1_virtualenv' + os.sep + 'Lib' + os.sep + 'site-packages')
-#from postmarker.core import PostmarkClient
 
 
 class submitShotDialogue(nukescripts.PythonPanel):
@@ -38,14 +35,14 @@ class submitShotDialogue(nukescripts.PythonPanel):
         self.showFolder = data.showFolder
         # knobs
         self.emailBool = nuke.Boolean_Knob('emailBool', 'Send Email to VFX')
-        self.addKnob(self.emailBool)
+        # self.addKnob(self.emailBool)
         self.emailBool.setValue(False)
         self.emailMsg = nuke.Multiline_Eval_String_Knob(
             'Type your shot notes here(if enabled).', '')
-        self.addKnob(self.emailMsg)
+        # self.addKnob(self.emailMsg)
         self.emailMsg.setEnabled(False)
         self.sep = nuke.Text_Knob('', '')
-        self.addKnob(self.sep)
+        # self.addKnob(self.sep)
         self.cancelButton = nuke.PyScript_Knob("Cancel")
         self.addKnob(self.dialogueText)
         self.button1 = nuke.PyScript_Knob(
@@ -75,28 +72,6 @@ class submitShotDialogue(nukescripts.PythonPanel):
         # NOTES _______________________________________________________________
         # -currently creates folder on gladiator before user has chance to accept or not
         #----------------------------------------------------------------------
-        def email():
-            # using "postmarker"
-            myid = emailUtils.make_msgid()
-            postmark = PostmarkClient(server_token='*HIDDEN*')
-            postmark.emails.send(
-                From='[' + self.user.email.split('@')[0] +
-                '] Artist Shot Update <*HIDDEN*>',
-                To='VFX <*HIDDEN*>',
-                Subject=self.showCode + '_' + self.shotName,
-                ReplyTo='*HIDDEN*',
-                Headers={
-                    'Message-ID': '<' + self.shotName + '@conditionone.com>',
-                    'References': self.shotName + '@conditionone.com'
-                },
-                HtmlBody='<html><body><h2>' + self.showCode + '_' + self.shotName + '_v' +
-                str(self.fileversion).zfill(3) + '</h2><br /><div><a href="file:///' +
-                self.shotFolder.path.remote + '">' + self.shotFolder.path.remote +
-                '</a><hr style="height:1px;margin:20px 0;border:0;background-color:#ccc">' +
-                self.emailMsg.value() + '</div></body></html>'
-            )
-            return
-
         def createNewRemoteVersion(serverShotFolder):
             newVersionFolderName = self.shotName + \
                 '_v' + str(self.fileversion).zfill(3)

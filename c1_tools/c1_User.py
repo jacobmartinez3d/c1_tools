@@ -22,7 +22,7 @@ class Login(PythonPanel):
             'c1_tools': os.path.join(os.path.realpath(__file__), os.pardir)
         }
         # define knobs
-        self.inp_email = nuke.String_Knob('email', 'C1 Initials: ')
+        self.inp_email = nuke.String_Knob('email', 'Artist: ')
         self.inp_workingDir = nuke.String_Knob(
             'workingDir', 'Local Working Directory: ')
         self.btn_workingDir = nuke.PyScript_Knob("Set Working Dir")
