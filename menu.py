@@ -31,14 +31,7 @@ nuke.menu('Nuke').addCommand('C1 Tools/C1 Submit Shot',
                              'c1_tools.submitShot(nuke.root().name())', icon='submitShot.png')
 nuke.menu('Nuke').addCommand('C1 Tools/Render OU.mp4 (Ffmpeg)',
                              'c1_tools.ffmpegRender()', icon='ffmpeg.png')
-# nuke.menu('Nuke').addCommand('C1 Tools/Render Titles QC-Sequence (Ffmpeg)',
-#                              'c1_tools.titles_qc()', icon='ffmpeg.png')
-nuke.menu('Nuke').addCommand(
-    'C1 Tools/Convert Prores to mp4 (Ffmpeg)', 'c1_tools.proresToMp4()', icon='ffmpeg.png')
 nuke.menu('Nuke').addCommand('C1 Tools/Scan for Missing Frames',
                              'c1_tools.Luis_Solver()', icon='missingFrames.png')
-nuke.menu('Nuke').addCommand('C1 Tools/Write --> Read',
-                             'c1_tools.writeToRead()').setShortcut('Ctrl+Alt+R')
 nuke.menu('Nuke').addCommand(
     'C1 Tools/Build local shot folder', 'c1_tools.createShotFolder()')
-nuke.menu('Nuke').addCommand('C1 Tools/C1 Preferences', 'open_Preferences()')
