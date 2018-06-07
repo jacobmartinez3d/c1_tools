@@ -99,12 +99,30 @@ Don't rename your local files or folders, or you will encounter these validation
 
 ## Render OU.mp4 (Ffmpeg)
 
-This tool scans the given directory for frames with naming that matches the current Nuke script. It is recommended to just navigate to a * Prerenders * folder with frames.
+This tool scans the given directory for frame-sequences with LEFT, RIGHT, or MONO suffixes and creates a * Squished Over-Under(Stereo) * h264 mp4 movie for previewing in headsets.
+
+Naming Convention:
+```
+<Show Code>_<Shot Name>_v<3-Digit Version-Number>_<LEFT, RIGHT, or MONO>.<4-Digit Frame-Number>.<ext>
+```
+
+Example:
+```
+BRZ_D1S4_v003_LEFT.0001.png, BRZ_D1S4_v003_RIGHT.0001.png
+```
+or,
+```
+BRZ_D1S4_v003_MONO.0001.png
+```
+For a mono frame-sequence, it will just convert the sequence into an h264 mp4.
 
 ![Alt text](c1_tools/renderOU.png?raw=true "Render OU.mp4 (Ffmpeg)")
 
 An Ffmpeg * .bat * file will be created in the folder, and begin running. When complete, you'll have a squished over-under mp4 located next to your Nuke script ready for viewing in GoPro VR player.
 
+It will look something like this:
+
+![Alt text](c1_tools/squished_ou.png?raw=true "Example of a Squished Over-Under video")
 (cont...)
 
 

@@ -4,9 +4,15 @@ import c1_tools.c1_Preferences as c1_Preferences
 import nuke
 import nukescripts
 try:
+    # < Nuke 11
+    import PySide.QtCore as QtCore
     import PySide.QtGui as QtGui
+    import PySide.QtGui as QtGuiWidgets
 except:
+    # >= Nuke 11
+    import PySide2.QtCore as QtCore
     import PySide2.QtGui as QtGui
+    import PySide2.QtWidgets as QtGuiWidgets
 
 
 def open_shotBrowser():
@@ -31,10 +37,8 @@ nuke.menu('Nuke').addCommand('C1 Tools/C1 Submit Shot',
                              'c1_tools.submitShot(nuke.root().name())', icon='submitShot.png')
 nuke.menu('Nuke').addCommand('C1 Tools/Render OU.mp4 (Ffmpeg)',
                              'c1_tools.ffmpegRender()', icon='ffmpeg.png')
-# nuke.menu('Nuke').addCommand('C1 Tools/Render Titles QC-Sequence (Ffmpeg)',
-#                              'c1_tools.titles_qc()', icon='ffmpeg.png')
-nuke.menu('Nuke').addCommand(
-    'C1 Tools/Convert Prores to mp4 (Ffmpeg)', 'c1_tools.proresToMp4()', icon='ffmpeg.png')
+nuke.menu('Nuke').addCommand('C1 Tools/Render Titles QC-Sequence (Ffmpeg)',
+                             'c1_tools.titles_qc()', icon='ffmpeg.png')
 nuke.menu('Nuke').addCommand('C1 Tools/Scan for Missing Frames',
                              'c1_tools.Luis_Solver()', icon='missingFrames.png')
 nuke.menu('Nuke').addCommand('C1 Tools/Write --> Read',

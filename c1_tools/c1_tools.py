@@ -1,9 +1,15 @@
 import nuke
 import nukescripts
 try:
+    # < Nuke 11
+    import PySide.QtCore as QtCore
     import PySide.QtGui as QtGui
+    import PySide.QtGui as QtGuiWidgets
 except:
+    # >= Nuke 11
+    import PySide2.QtCore as QtCore
     import PySide2.QtGui as QtGui
+    import PySide2.QtWidgets as QtGuiWidgets
 import os
 import re
 from string import ascii_lowercase
@@ -73,31 +79,6 @@ def writeToRead():
                         writeNodes[i].xpos() +
                         (writeNodes[i].width() / 100) * 2,
                         writeNodes[i].ypos())
-    return
-
-
-def proresToMp4():
-    target = os.path.abspath(nuke.getFilename('Select .mov.'))
-    output = os.path.abspath(nuke.getFilename(
-        'Select output file destination.'))
-    text = ['ffmpeg -i ', target,
-            '''
-            -c:v libx264
-            -crf 20
-            -pix_fmt yuv420p
-            -coder 0
-            -refs 2
-            -x264opts b-pyramid=0
-            -g 29.97
-            -bf 0
-            -r 29.97 ''',
-            output + '.mp4']
-    string = ''.join(text)
-    saveBatAs = os.path.splitext(output)[0] + '.bat'
-    fileObj = open(saveBatAs, 'wb')
-    fileObj.write(string)
-    fileObj.close()
-    os.system("start " + saveBatAs)
     return
 
 
