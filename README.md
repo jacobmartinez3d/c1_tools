@@ -82,7 +82,7 @@ C1 Naming convention:
 ```
 The **%V** is a variable representing whatever views are set to render - such as *left* and *right*.
 
-The **####** tells Nuke to auto-increment the frame-number. **%04d** also works, where the number represents the amount of padding.
+The **####** is a placeholder which Nuke will write the frame-number to. **%04d** also works, where the number represents the amount of padding.
 
 [Learn more about Rendering Stereoscopic Images in Nuke](https://learn.foundry.com/nuke/8.0/content/user_guide/stereoscopic_films/rendering_stereo_images.html)
 
@@ -91,9 +91,9 @@ Example:
 ./Prerenders/BRZ_D1S4_v003.####.png
 ```
 
-![Alt text](c1_tools/file_knob.png?raw=true "File knob)
+![Alt text](c1_tools/file_knob.png?raw=true "File knob")
 
-This way, each time you use ***C1 Tools > Version Up*** it will sync with the current version number.
+If you follow the naming procedures above, then each time you use ***C1 Tools > Version Up*** the outpud filename will be updated and renamed for you.
 
 <hr>
 
@@ -111,7 +111,7 @@ This dialogue will detect if there are any conflicts in versions(as seen above),
 
 There are also a number of other validations that take place when opening this dialogue that you should never encounter if you always use the *Shot Browser*, and *C1 VersionUp* tools.
 
-#### Don't rename your local files or folders in the working directory, or you will encounter validation errors.
+#### Don't rename your local nukescripts, "Prerenders" folder, or frames in the working directory, or you will encounter validation errors.
 
 <hr>
 
@@ -137,9 +137,9 @@ BRZ_D1S4_v003_MONO.0001.png
 ![Alt text](c1_tools/renderOU.png?raw=true "Render OU.mp4 (Ffmpeg)")
 
 #### Select the directory containing the frames,
-And an Ffmpeg *.bat* file will be created in the folder with your Nuke script and begin running. When complete, you'll have an mp4 located next to your Nuke script ready for viewing in a headset. At any time you can double-click the *.bat* file and re-render.
+And an Ffmpeg *.bat* file will be created in the folder with your Nuke script and begin running. When complete, you'll have an mp4 located next to your Nuke script ready for viewing in a headset. At any time you can double-click the *.bat* file and re-render from the same folder.
 
-It will look something like this:
+The resulting .mp4 will look something like this:
 
 ![Alt text](c1_tools/squished_ou.png?raw=true "Example of a Squished Over-Under video")
 
@@ -151,7 +151,7 @@ Must have a write node selected with valid path to the rendered frame output in 
 
 Example:
 
-![Alt text](c1_tools/file_knob.png?raw=true "File knob)
+![Alt text](c1_tools/file_knob.png?raw=true "File knob")
 
 This location will be scanned for missing frames and frame-ranges.
 
@@ -166,7 +166,7 @@ Clicking * Yes * will automatically start a nuke render with those frames input 
 
 ## Authors
 
-* **Jacob Martinez** - *Technical Artist* - [Magnetic-Lab](https://www.magnetic-lab.com/)
+* **Jacob Martinez** - *Senior Technical Artist* - [Magnetic-Lab](https://www.magnetic-lab.com/)
 
 ## License
 
